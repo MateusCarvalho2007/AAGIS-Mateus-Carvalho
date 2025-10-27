@@ -1,7 +1,21 @@
 <?php
+session_start();
+
+// Verifica se o usuário está logado
+if (!isset($_SESSION['idAluno'])) {
+    $_SESSION['erro'] = "Você precisa fazer login para cadastrar um estágio!";
+    header("Location: login.php");
+    exit;
+}
+
 // processamento do formulário de cadastro de estágio
 if(isset($_POST['botao'])){
     require_once __DIR__ . "\classes\Estagio.php";
+
+    // Verificar se o usuário está logado
+    if (!isset($_SESSION['idAluno']) || !isset($_SESSION['idProfessor'])) {
+        die("Erro: Você precisa estar logado para cadastrar um estágio.");
+    }
 
     // assumir valores do session quando disponível
     $alunoNome = $_SESSION['nome'] ?? '';
