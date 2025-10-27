@@ -148,15 +148,42 @@ class Estagio{
         $this->professor = $professor;
     }
 
-    //salva as info
+    //salva as info usando prepared statement para maior segurança
     public function save():bool{
         $conexao = new MySQL();
-        $sql = "INSERT INTO estagio (name, dataInicio, dataFim, empresa, setorEmpresa, vinculoTrabalhista, 
-        obrigatorio, nameSupervisor, emailSupervisor, professor, idAluno, idProfessor, status)
-        VALUES ('{$this->name}', '{$this->dataInicio}', '{$this->dataFim}', '{$this->empresa}',
-        '{$this->setorEmpresa}', '{$this->vinculoTrabalhista}', '{$this->obrigatorio}', '{$this->nameSupervisor}',
-        '{$this->emailSupervisor}', '{$this->professor}', '{$this->idAluno}', '{$this->idProfessor}', '{$this->status}')";
-        return $conexao->executa($sql);
+        $stmt = $conexao->getConnection()->prepare("
+            INSERT INTO estagio (
+                nome, dataInicio, dataFim, empresa, setorEmpresa, 
+                vinculoTrabalhista, nomeSupervisor, obrigatorio, 
+                emailSupervisor, idAluno, idProfessor
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        
+        if (!$stmt) {
+            error_log("Erro ao preparar statement: " . $conexao->getConnection()->error);
+            return false;
+        }
+
+        $stmt->bind_param("sssssisiiii", 
+            $this->name,         // nome (string)
+            $this->dataInicio,   // dataInicio (string)
+            $this->dataFim,      // dataFim (string)
+            $this->empresa,      // empresa (string)
+            $this->setorEmpresa, // setorEmpresa (string)
+            $this->vinculoTrabalhista, // vinculoTrabalhista (int)
+            $this->nameSupervisor,     // nomeSupervisor (string)
+            $this->obrigatorio,        // obrigatorio (int)
+            $this->emailSupervisor,    // emailSupervisor (string)
+            $this->idAluno,            // idAluno (int)
+            $this->idProfessor         // idProfessor (int)
+        );
+        
+        $result = $stmt->execute();
+        if (!$result) {
+            error_log("Erro ao executar statement: " . $stmt->error);
+        }
+        $stmt->close();
+        return $result;
     }
 
     //pega todas as infos
@@ -167,19 +194,19 @@ class Estagio{
         $estagios = array();
         foreach($resultados as $resultado){
             $e = new Estagio(
-                $resultado['name'] ?? '',
+                $resultado['nome'] ?? '',
                 $resultado['dataInicio'] ?? null,
                 $resultado['dataFim'] ?? null,
                 $resultado['empresa'] ?? '',
                 $resultado['setorEmpresa'] ?? '',
                 $resultado['vinculoTrabalhista'] ?? 0,
                 $resultado['obrigatorio'] ?? 0,
-                $resultado['nameSupervisor'] ?? '',
+                $resultado['nomeSupervisor'] ?? '',
                 $resultado['emailSupervisor'] ?? '',
-                $resultado['professor'] ?? '',
+                // a tabela `estagio` não armazena o nome do professor; deixamos vazio
+                '',
                 $resultado['idAluno'] ?? null,
-                $resultado['idProfessor'] ?? null,
-                $resultado['status'] ?? 1
+                $resultado['idProfessor'] ?? null
             );
             $e->idEstagio = $resultado['idEstagio'] ?? null;
             $e->setStatus($resultado['status'] ?? 1);
@@ -194,19 +221,18 @@ class Estagio{
         $resultado = $conexao->consulta($sql);
         $row = $resultado[0];
         $e = new Estagio(
-            $row['name'] ?? '',
+            $row['nome'] ?? '',
             $row['dataInicio'] ?? null,
             $row['dataFim'] ?? null,
             $row['empresa'] ?? '',
             $row['setorEmpresa'] ?? '',
             $row['vinculoTrabalhista'] ?? 0,
             $row['obrigatorio'] ?? 0,
-            $row['nameSupervisor'] ?? '',
+            $row['nomeSupervisor'] ?? '',
             $row['emailSupervisor'] ?? '',
-            $row['professor'] ?? '',
+            '',
             $row['idAluno'] ?? null,
-            $row['idProfessor'] ?? null,
-            $row['status'] ?? 1
+            $row['idProfessor'] ?? null
         );
         $e->setIdEstagio($row['idEstagio'] ?? null);
         $e->setStatus($row['status'] ?? 1);
