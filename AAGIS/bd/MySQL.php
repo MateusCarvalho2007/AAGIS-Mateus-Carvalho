@@ -11,6 +11,16 @@ class MySQL{
 	public function __construct(){
 		$this->connection = new \mysqli(HOST,USUARIO,SENHA,BANCO);
 		$this->connection->set_charset("utf8");
+		
+		// Verifica se houve erro na conexão
+		if ($this->connection->connect_error) {
+			die('Erro de conexão: ' . $this->connection->connect_error);
+		}
+	}
+	
+	// Método para acessar a conexão (necessário para prepared statements)
+	public function getConnection() {
+		return $this->connection;
 	}
 
 	public function executa($sql){
