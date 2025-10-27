@@ -1,4 +1,12 @@
 <?php
+session_start();
+
+// Verifica se o usuário está logado
+if (!isset($_SESSION['idAluno'])) {
+    header("Location: login.php");
+    exit;
+}
+
 if(isset($_GET['idEstagio'])){
      require_once __DIR__.'/classes/Estagio.php';
      Estagio::mudarStatus($_GET['idEstagio']);
@@ -16,7 +24,25 @@ $estagios = Estagio::findall();
     <title>Listagem de Estágios</title>
 </head>
 <body>
-    <h1>Lista de Estágios:</h1>
+    <div style="background-color: #f8f9fa; padding: 10px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
+            <h1 style="margin: 0;">Lista de Estágios</h1>
+            <?php if (isset($_SESSION['nome'])): ?>
+                <div style="display: flex; align-items: center;">
+                    <span style="margin-right: 15px;">
+                        Bem-vindo(a), <strong><?= htmlspecialchars($_SESSION['nome']) ?></strong>
+                    </span>
+                    <a href="logout.php" style="
+                        background-color: #dc3545;
+                        color: white;
+                        padding: 8px 15px;
+                        text-decoration: none;
+                        border-radius: 4px;
+                        font-size: 14px;">Sair</a>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
 
     <a href="cadastro.php">Cadastrar novo estágio</a>
     <br>
