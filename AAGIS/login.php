@@ -87,7 +87,6 @@ if (isset($_SESSION['idAluno'])) {
         </div>
 
         <button type="submit" name="login">Entrar</button>
-        <a href="cadastro.php">Cadastrar estágio</a>
     </form>
 </body>
 </html>
