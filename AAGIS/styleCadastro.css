@@ -1,0 +1,338 @@
+/* ===========================
+   Estilo geral da página
+=========================== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #004aad, #007bff);
+    min-height: 100vh;
+    margin: 0;
+    padding: 2rem 1rem;
+    color: #333;
+}
+
+/* ===========================
+   Container principal
+=========================== */
+h1 {
+    text-align: center;
+    color: #fff;
+    font-size: 2.5rem;
+    letter-spacing: 1px;
+    margin-bottom: 2rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ===========================
+   Mensagens informativas
+=========================== */
+p {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 1rem auto;
+    text-align: center;
+    line-height: 1.6;
+}
+
+/* ===========================
+   Lista de informações (estágio finalizado)
+=========================== */
+ul {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 2rem auto;
+    list-style: none;
+}
+
+ul li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+    font-size: 1.1rem;
+}
+
+ul li:last-child {
+    border-bottom: none;
+}
+
+ul li strong {
+    color: #007bff;
+    font-weight: 600;
+}
+
+/* ===========================
+   Formulário de edição
+=========================== */
+form {
+    background-color: #fff;
+    padding: 2.5rem;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* ===========================
+   Campos do formulário
+=========================== */
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+    font-size: 1rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="date"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+    margin-bottom: 1.5rem;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="date"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+/* ===========================
+   Grupos de radio buttons
+=========================== */
+label > label {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 2rem;
+    margin-bottom: 1rem;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+input[type="radio"] {
+    margin-right: 0.5rem;
+    transform: scale(1.1);
+}
+
+/* Estilização dos grupos de opções */
+label:has(> label) {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #007bff;
+}
+
+label:has(> label) > label:first-child {
+    font-weight: 600;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* ===========================
+   Botões
+=========================== */
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 0.9rem 2rem;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 1rem;
+    min-width: 140px;
+    text-align: center;
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.2);
+}
+
+a {
+    background-color: #007bff;
+    color: #fff;
+    padding: 0.9rem 2rem;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 1rem;
+    min-width: 140px;
+    text-align: center;
+    display: inline-block;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+a:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    color: #fff;
+}
+
+a:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.2);
+}
+
+a:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* Container para os botões */
+form > button:last-child,
+form > a:last-child {
+    margin-top: 1rem;
+}
+
+/* ===========================
+   Estados especiais
+=========================== */
+/* Estilo para estágio finalizado */
+p + ul + a {
+    display: inline-block;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+/* Mensagem de estágio finalizado */
+p:contains("finalizado") {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    font-weight: 600;
+}
+
+/* ===========================
+   Responsividade
+=========================== */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem 0.5rem;
+    }
+    
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    form {
+        padding: 1.5rem;
+    }
+    
+    ul {
+        padding: 1.5rem;
+        margin: 1rem auto;
+    }
+    
+    label > label {
+        display: block;
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+    
+    button, a {
+        width: 100%;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    button {
+        margin-right: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    form {
+        padding: 1rem;
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="date"] {
+        font-size: 16px; /* Prevenir zoom no iOS */
+    }
+}
+
+/* ===========================
+   Animações suaves
+=========================== */
+form, ul, p {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===========================
+   Estados de foco para acessibilidade
+=========================== */
+input[type="radio"]:focus,
+button:focus,
+a:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* ===========================
+   Melhorias visuais para grupos de formulário
+=========================== */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.radio-group {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #007bff;
+}
+
+.radio-group-title {
+    font-weight: 600;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+    display: block;
+}

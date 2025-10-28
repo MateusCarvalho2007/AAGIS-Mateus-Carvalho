@@ -30,7 +30,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save']) && isset($_POS
 <head>
      <meta charset="UTF-8">
      <title>Editar Estágio</title>
-     <link rel="stylesheet" href="style.css">
+     <link rel="stylesheet" href="styleCadastro.css">
 </head>
 <body>
      <h1>Editar Estágio</h1>
