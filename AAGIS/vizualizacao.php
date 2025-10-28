@@ -24,6 +24,7 @@ try {
 <head>
 	<meta charset="UTF-8">
 	<title>Visualização de Estágios</title>
+	<link rel="stylesheet" href="style.css">
 	<style>
 		table { border-collapse: collapse; width: 100%; }
 		th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }

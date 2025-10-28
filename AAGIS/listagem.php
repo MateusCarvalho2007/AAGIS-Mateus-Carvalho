@@ -22,6 +22,7 @@ $estagios = Estagio::findall();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listagem de Estágios</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div style="background-color: #f8f9fa; padding: 10px; margin-bottom: 20px;">
@@ -50,7 +51,6 @@ $estagios = Estagio::findall();
     <table border="1" cellpadding="6" cellspacing="0">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Aluno</th>
                 <th>Empresa</th>
                 <th>Período</th>
@@ -79,7 +79,7 @@ $estagios = Estagio::findall();
                 </td>
                 <td>
                     <?php if($estagio->isFinalizado()): ?>
-                        <span style="color:gray">Inacessível (finalizado)</span>
+                        <span style="color:red">Estágio Finalizado</span>
                     <?php else: ?>
                         <a href="editar.php?idEstagio=<?= $estagio->getIdEstagio() ?>">Editar</a>
                         |
