@@ -1,21 +1,24 @@
 <?php
 session_start();
+require_once __DIR__ . "/classes/Usuario.php";
 
-// Limpa a sessão anterior se existir
-if (isset($_SESSION['idAluno'])) {
-    // Limpa todas as variáveis de sessão
-    $_SESSION = array();
-    
-    // Destroi o cookie da sessão
-    if (isset($_COOKIE[session_name()])) {
-        setcookie(session_name(), '', time()-3600, '/');
+if (isset($_SESSION['idUsuario'])) {
+    header("Location: listagem.php");
+    exit;
+}
+
+if (isset($_POST['login'])) {
+    $email = isset($_POST['email']) ? $_POST['email'] : '';
+    $senha = isset($_POST['senha']) ? $_POST['senha'] : '';
+
+    if (Usuario::autenticar($email, $senha)) {
+        header("Location: listagem.php");
+        exit;
+    } else {
+        $_SESSION['erro'] = "E-mail ou senha incorretos.";
+        header("Location: index.php");
+        exit;
     }
-    
-    // Destroi a sessão
-    session_destroy();
-    
-    // Inicia uma nova sessão limpa
-    session_start();
 }
 ?>
 <!DOCTYPE html>
@@ -27,7 +30,7 @@ if (isset($_SESSION['idAluno'])) {
     <link rel="stylesheet" href="styles/login.css">
 </head>
 <body>
-    <h1>Login do Aluno</h1>
+    <h1>Login</h1>
     
     <?php if (isset($_SESSION['erro'])): ?>
         <div class="error">
@@ -39,7 +42,7 @@ if (isset($_SESSION['idAluno'])) {
     
     <?php endif; ?>
 
-    <form action="autenticar.php" method="post">
+    <form action="index.php" method="post">
         <div class="form-group">
             <label for="email">E-mail:</label>
             <input type="email" id="email" name="email" required>

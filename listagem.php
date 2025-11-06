@@ -5,7 +5,7 @@
     session_start();
 
     // Verifica se o usuário está logado
-    if (!isset($_SESSION['idAluno'])) {
+    if (!isset($_SESSION['idUsuario'])) {
         header("Location: index.php");
         exit;
     }
@@ -16,8 +16,10 @@
     }
 
     require_once __DIR__.'/classes/Estagio.php';
-    $idAluno = $_SESSION['idAluno'];
-    $estagios = Estagio::findall($idAluno);
+    require_once __DIR__.'/classes/Usuario.php';
+    $idUsuario = $_SESSION['idUsuario'];
+    $usuario = Usuario::acharUsuario($idUsuario);
+    $estagios = Estagio::findall($idUsuario);
     ?>
 
     <!DOCTYPE html>
@@ -51,19 +53,22 @@
         
         <br>
         <br>
-
-        <h3><a href="cadastro.php" style="
-                background-color: white;
-                color: black;
-                padding: 8px 12px;
-                text-decoration: none;
-                border-radius: 5px;
-                font-size: 20px;">Cadastrar Novo Estágio</a></h3>
+        <?php if($_SESSION['tipo'] == 'professor'): ?>
+            <h3><a href="cadastro.php" style="
+                    background-color: white;
+                    color: black;
+                    padding: 8px 12px;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    font-size: 20px;">Cadastrar Novo Estágio</a></h3>
+        <?php endif; ?>
                 
         <table border="1" cellpadding="6" cellspacing="0">
             <thead>
                 <tr>
-                    <th>Aluno</th>
+                    <?php if($_SESSION['tipo'] == 'professor'): ?>
+                        <th>Aluno</th>
+                    <?php endif; ?>
                     <th>Empresa</th>
                     <th>Período</th>
                     <th>Status</th>
@@ -73,7 +78,9 @@
             <tbody>
             <?php foreach($estagios as $estagio): ?>
                 <tr>
-                    <td><?= htmlspecialchars($estagio->getName()) ?></td>
+                    <?php if($_SESSION['tipo'] == 'professor'): ?>
+                        <td><?= htmlspecialchars($estagio->getName()) ?></td>
+                    <?php endif; ?>
                     <td><?= htmlspecialchars($estagio->getEmpresa()) ?></td>
                     <td><?= htmlspecialchars($estagio->getDataInicio()) ?> - <?= htmlspecialchars($estagio->getDataFim()) ?></td>
                     <td>
@@ -101,12 +108,14 @@
             <?php endforeach; ?>
             </tbody>
         </table>
-        <h3><a href="cadastro.php" style="
-                background-color: white;
-                color: black;
-                padding: 8px 12px;
-                text-decoration: none;
-                border-radius: 5px;
-                font-size: 20px;">Cadastrar Novo Estágio</a></h3>
+        <?php if($_SESSION['tipo'] == 'professor'): ?>
+            <h3><a href="cadastro.php" style="
+                    background-color: white;
+                    color: black;
+                    padding: 8px 12px;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    font-size: 20px;">Cadastrar Novo Estágio</a></h3>
+        <?php endif; ?>
     </body>
     </html>

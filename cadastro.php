@@ -1,9 +1,8 @@
 <?php
 session_start();
 
-// Verifica se o usuário está logado
-if (!isset($_SESSION['idAluno'])) {
-    $_SESSION['erro'] = "Você precisa fazer login para cadastrar um estágio!";
+if (!isset($_SESSION['idUsuario']) && $_SESSION['tipo'] != 'professor') {
+    $_SESSION['erro'] = "Você precisa fazer login para cadastrar um estágio e ser um Professor!";
     header("Location: index.php");
     exit;
 }
@@ -12,18 +11,11 @@ if (!isset($_SESSION['idAluno'])) {
 if(isset($_POST['botao'])){
     require_once __DIR__ . "/classes/Estagio.php";
 
-    // Verificar se o usuário está logado
-    if (!isset($_SESSION['idAluno']) || !isset($_SESSION['idProfessor'])) {
-        die("Erro: Você precisa estar logado para cadastrar um estágio.");
-    }
-
     // assumir valores do session quando disponível
-    $alunoNome = $_SESSION['nome'] ?? '';
-    $idAluno = $_SESSION['idAluno'] ?? null;
-    $professorNome = $_SESSION['nomeProfessor'] ?? '';
-    $idProfessor = $_SESSION['idProfessor'] ?? null;
+    $professorNome = $_SESSION['nome'] ?? '';
 
     // ler campos do formulário com nomes consistentes
+    $alunoNome = $_POST['nomeAluno'] ?? '';
     $dataInicio = $_POST['dataInicio'] ?? null;
     $dataFim = $_POST['dataFim'] ?? null;
     $estagioTipo = isset($_POST['estagioTipo']) ? intval($_POST['estagioTipo']) : 0; // 1 obrigatório, 0 não
@@ -69,6 +61,9 @@ if(isset($_POST['botao'])){
     <br>
 
     <form action="cadastro.php" method="post">
+    
+        <label for="nomeAluno">Nome do Aluno: </label>
+        <input type="text" name="nomeAluno" id="nomeAluno" required>
 
         <label for="nomeEmpresa">Nome da Empresa: </label>
         <input type="text" name="nomeEmpresa" id="nomeEmpresa" required>

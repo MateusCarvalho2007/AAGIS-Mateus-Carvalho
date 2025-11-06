@@ -1,9 +1,6 @@
 <?php
 
-namespace Src\models;
-
-use Src\database\MySQL;
-use RuntimeException;
+require_once __DIR__."/../bd/MySQL.php";
 
 if (!function_exists('str_ends_with')) {
     function str_ends_with(string $haystack, string $needle): bool
