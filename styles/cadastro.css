@@ -307,7 +307,7 @@ form, ul, p {
 
 /* ===========================
    Estados de foco para acessibilidade
-=========================== */
+   =========================== */
 input[type="radio"]:focus,
 button:focus,
 a:focus {
