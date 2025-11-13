@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if ($documento->update()) {
         echo "<p style='color:green;'>Documento atualizado com sucesso!</p>";
-        echo "<a href='listar_documentos.php?idEstagio=" . $documento->getIdEstagio() . "'>Voltar à lista</a>";
+        echo "<a href='listagem.php?idEstagio=" . $documento->getIdEstagio() . "'>Voltar à lista</a>";
         exit;
     } else {
         echo "<p style='color:red;'>Erro ao atualizar o documento.</p>";
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <button type="submit">Salvar Alterações</button>
-    <a href="listar_documentos.php?idEstagio=<?= $documento->getIdEstagio() ?>">Cancelar</a>
+    <a href="listagem.php?idEstagio=<?= $documento->getIdEstagio() ?>">Cancelar</a>
 </form>
 </body>
 </html>
