@@ -22,6 +22,8 @@ class Estagio{
     const STATUS_FINALIZADO = 0;
     const STATUS_ATIVO = 1;
     const STATUS_EM_ANDAMENTO = 2;
+    // alias to keep naming consistent with UI (Concluído)
+    const STATUS_CONCLUIDO = 2;
 
     public function __construct($name = '', $dataInicio = null, $dataFim = null,
         $empresa = '', $setorEmpresa = '', $vinculoTrabalhista = 0,
@@ -216,56 +218,56 @@ class Estagio{
     }
 
     //pega todas as infos
-     public static function findall($idAluno = null): array {
-    $conexao = new MySQL();
+    public static function findall($idAluno = null): array {
+        $conexao = new MySQL();
 
-    if ($idAluno !== null) {
-        // garantir que é inteiro
-        $idAlunoInt = (int) $idAluno;
+        $idUsuarioInt = (int) ($_SESSION['idUsuario']);
+        $tipo = $_SESSION['tipo'] ?? 'aluno';
 
-        $sql = "SELECT e.*, p.nome AS nomeProfessor 
-                FROM estagio e 
-                LEFT JOIN professor p ON e.idProfessor = p.idProfessor
-                WHERE e.idAluno = $idAlunoInt";
+        if ($tipo === 'professor') {
+            $sql = "SELECT e.*, a.nome AS nomeAluno
+                    FROM estagio e
+                    LEFT JOIN usuario a ON e.idAluno = a.idUsuario
+                    WHERE e.idProfessor = {$idUsuarioInt}";
+        } else {
+            $sql = "SELECT e.*, u.nome AS nomeProfessor 
+                    FROM estagio e 
+                    LEFT JOIN usuario u ON e.idProfessor = u.idUsuario
+                    WHERE e.idAluno = {$idUsuarioInt}";
+        }
+
         $resultados = $conexao->consulta($sql);
-    } else {
-        $sql = "SELECT e.*, p.nome AS nomeProfessor 
-                FROM estagio e 
-                LEFT JOIN professor p ON e.idProfessor = p.idProfessor";
-        $resultados = $conexao->consulta($sql);
-    }
+        $estagios = array();
+        foreach ($resultados as $resultado) {
+            $profNome = $resultado['nomeProfessor'] ?? '';
+            $e = new Estagio(
+                $resultado['nome'] ?? '',
+                $resultado['dataInicio'] ?? null,
+                $resultado['dataFim'] ?? null,
+                $resultado['empresa'] ?? '',
+                $resultado['setorEmpresa'] ?? '',
+                $resultado['vinculoTrabalhista'] ?? 0,
+                $resultado['obrigatorio'] ?? 0,
+                $resultado['nomeSupervisor'] ?? '',
+                $resultado['emailSupervisor'] ?? '',
+                $profNome,
+                $resultado['idAluno'] ?? null,
+                $resultado['idProfessor'] ?? null
+            );
+            $e->idEstagio = $resultado['idEstagio'] ?? null;
+            $e->setStatus($resultado['status'] ?? 1);
+            $estagios[] = $e;
+        }
 
-    $estagios = array();
-    foreach ($resultados as $resultado) {
-        $profNome = $resultado['nomeProfessor'] ?? '';
-        $e = new Estagio(
-            $resultado['nome'] ?? '',
-            $resultado['dataInicio'] ?? null,
-            $resultado['dataFim'] ?? null,
-            $resultado['empresa'] ?? '',
-            $resultado['setorEmpresa'] ?? '',
-            $resultado['vinculoTrabalhista'] ?? 0,
-            $resultado['obrigatorio'] ?? 0,
-            $resultado['nomeSupervisor'] ?? '',
-            $resultado['emailSupervisor'] ?? '',
-            $profNome,
-            $resultado['idAluno'] ?? null,
-            $resultado['idProfessor'] ?? null
-        );
-        $e->idEstagio = $resultado['idEstagio'] ?? null;
-        $e->setStatus($resultado['status'] ?? 1);
-        $estagios[] = $e;
+        return $estagios;
     }
-
-    return $estagios;
-}
 
 
 
     public static function find($idEstagio):Estagio{
         $conexao = new MySQL();
         // traz o estágio e o nome do professor (quando existir)
-        $sql = "SELECT e.*, p.nome AS nomeProfessor FROM estagio e LEFT JOIN professor p ON e.idProfessor = p.idProfessor WHERE e.idEstagio = {$idEstagio} LIMIT 1";
+        $sql = "SELECT e.*, u.nome AS nomeProfessor FROM estagio e LEFT JOIN usuario u ON e.idProfessor = u.idUsuario WHERE e.idEstagio = {$idEstagio} LIMIT 1";
         $resultado = $conexao->consulta($sql);
         if (!isset($resultado[0])) {
             throw new Exception('Estágio não encontrado');
@@ -325,6 +327,56 @@ class Estagio{
 
     public function setStatus($status): void{
         $this->status = $status;
+    }
+
+    /**
+     * Retorna um rótulo legível para um código de status
+     */
+    public static function getStatusLabel($status): string{
+        $s = intval($status);
+        switch($s){
+            case self::STATUS_FINALIZADO:
+                return 'Finalizado';
+            case self::STATUS_ATIVO:
+                return 'Ativo';
+            case self::STATUS_CONCLUIDO:
+            case self::STATUS_EM_ANDAMENTO:
+                return 'Concluído';
+            default:
+                return 'Desconhecido';
+        }
+    }
+
+    public function isConcluido(): bool{
+        return intval($this->status) === self::STATUS_CONCLUIDO || intval($this->status) === self::STATUS_EM_ANDAMENTO;
+    }
+
+    /**
+     * Atualiza apenas o campo status de um estágio (prepared statement)
+     */
+    public static function updateStatus(int $idEstagio, int $status): bool{
+        $conexao = new MySQL();
+        $conn = $conexao->getConnection();
+
+        $sql = "UPDATE estagio SET status = ? WHERE idEstagio = ?";
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            error_log("Erro ao preparar statement (updateStatus): " . $conn->error);
+            return false;
+        }
+        $s = intval($status);
+        $id = intval($idEstagio);
+        if (!$stmt->bind_param('ii', $s, $id)) {
+            error_log("Erro ao bind_param (updateStatus): " . $stmt->error);
+            $stmt->close();
+            return false;
+        }
+        $res = $stmt->execute();
+        if (!$res) {
+            error_log("Erro ao executar statement (updateStatus): " . $stmt->error);
+        }
+        $stmt->close();
+        return (bool)$res;
     }
 
     public function isFinalizado(): bool{

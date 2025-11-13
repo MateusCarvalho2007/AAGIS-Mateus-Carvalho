@@ -336,3 +336,256 @@ a:focus {
     margin-bottom: 0.5rem;
     display: block;
 }
+
+/* ===========================
+   Estilos para Status do Estágio
+=========================== */
+
+/* Container para exibição de status */
+.status-container {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff;
+}
+
+/* Span de status com cores distintas */
+.status-ativo {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    background-color: #d4edda;
+    color: #155724;
+    border: 2px solid #28a745;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+    animation: pulse-green 2s infinite;
+}
+
+.status-concluido {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    background-color: #cfe2ff;
+    color: #084298;
+    border: 2px solid #0d6efd;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2);
+    animation: pulse-blue 2s infinite;
+}
+
+.status-finalizado {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    background-color: #f8d7da;
+    color: #842029;
+    border: 2px solid #dc3545;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+    animation: pulse-red 2s infinite;
+}
+
+.status-desconhecido {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    background-color: #e2e3e5;
+    color: #383d41;
+    border: 2px solid #6c757d;
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
+}
+
+/* ===========================
+   Animações de status
+=========================== */
+
+@keyframes pulse-green {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+    }
+    50% {
+        box-shadow: 0 2px 16px rgba(40, 167, 69, 0.4);
+    }
+}
+
+@keyframes pulse-blue {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2);
+    }
+    50% {
+        box-shadow: 0 2px 16px rgba(13, 110, 253, 0.4);
+    }
+}
+
+@keyframes pulse-red {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+    }
+    50% {
+        box-shadow: 0 2px 16px rgba(220, 53, 69, 0.4);
+    }
+}
+
+/* ===========================
+   Formulário de alteração de status
+=========================== */
+
+#bloco-status {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+    margin-bottom: 1.5rem;
+}
+
+#bloco-status label {
+    display: block;
+    font-weight: 600;
+    color: #007bff;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+#status {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #007bff;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+}
+
+#status:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+    outline: none;
+}
+
+#status:hover {
+    border-color: #0056b3;
+}
+
+/* ===========================
+   Botão "Marcar como Concluído"
+=========================== */
+
+button[style*="background-color: #28a745"] {
+    background-color: #28a745 !important;
+    padding: 0.75rem 1.5rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border: none !important;
+    border-radius: 6px !important;
+    color: white !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: inline-block !important;
+    text-align: center !important;
+    text-decoration: none !important;
+}
+
+button[style*="background-color: #28a745"]:hover {
+    background-color: #218838 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.3) !important;
+}
+
+button[style*="background-color: #28a745"]:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 3px 8px rgba(40, 167, 69, 0.2) !important;
+}
+
+/* ===========================
+   Mensagens de sucesso/erro
+=========================== */
+
+div[style*="color: green"] {
+    background-color: #d4edda !important;
+    border: 2px solid #28a745 !important;
+    color: #155724 !important;
+    padding: 1rem !important;
+    border-radius: 8px !important;
+    margin-bottom: 1.5rem !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    animation: slideDown 0.4s ease-out;
+}
+
+div[style*="color: red"] {
+    background-color: #f8d7da !important;
+    border: 2px solid #dc3545 !important;
+    color: #842029 !important;
+    padding: 1rem !important;
+    border-radius: 8px !important;
+    margin-bottom: 1.5rem !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    animation: slideDown 0.4s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===========================
+   Container de informações
+=========================== */
+
+#container > div[style*="margin-bottom"] {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+#container > div[style*="margin-bottom"] h2 {
+    margin: 0.5rem 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+#container > div[style*="margin-bottom"] h2 span {
+    margin-left: 0.5rem;
+}
+
+/* ===========================
+   Link de voltar
+=========================== */
+
+a[href="listagem.php"] {
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    display: inline-block;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+a[href="listagem.php"]:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}

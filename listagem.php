@@ -86,13 +86,8 @@
                     <td>
                         <?php
                             $s = $estagio->getStatus();
-                            if($s == \Estagio::STATUS_FINALIZADO){
-                                echo 'Finalizado';
-                            } elseif($s == \Estagio::STATUS_ATIVO){
-                                echo 'Ativo';
-                            } else {
-                                echo 'Em andamento';
-                            }
+                            // usa helper para rótulo consistente
+                            echo \Estagio::getStatusLabel($s);
                         ?>
                     </td>
                     <td>

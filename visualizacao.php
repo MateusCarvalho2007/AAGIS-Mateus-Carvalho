@@ -1,12 +1,45 @@
 <?php
 require_once __DIR__ . '/classes/Estagio.php';
+session_start();
 
-// Ativa a exibição de erros
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$id = (int)$_GET['idEstagio'];
+// Variáveis de controle
+$estagio = null;
+$mensagemSucesso = null;
+$mensagemErro = null;
+
+// Tratar POST para atualizar status
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idEstagio'])) {
+    $idEstagio = intval($_POST['idEstagio']);
+    $novoStatus = isset($_POST['status']) ? intval($_POST['status']) : null;
+    
+    if ($novoStatus !== null) {
+        // Validar status
+        $statusesValidos = [
+            Estagio::STATUS_FINALIZADO,
+            Estagio::STATUS_ATIVO,
+            Estagio::STATUS_CONCLUIDO,
+            Estagio::STATUS_EM_ANDAMENTO
+        ];
+        
+        if (in_array($novoStatus, $statusesValidos, true)) {
+            $ok = Estagio::updateStatus($idEstagio, $novoStatus);
+            if ($ok) {
+                $mensagemSucesso = 'Status atualizado com sucesso!';
+            } else {
+                $mensagemErro = 'Erro ao atualizar o status.';
+            }
+        } else {
+            $mensagemErro = 'Status inválido.';
+        }
+    }
+}
+
+// Obter ID do estágio
+$id = isset($_POST['idEstagio']) ? intval($_POST['idEstagio']) : intval($_GET['idEstagio'] ?? 0);
 
 try {
     $estagio = Estagio::find($id);
@@ -24,49 +57,85 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Visualização de Estágios</title>
-    <link rel="stylesheet" href="styles/cadastro.css">
+    <link rel="stylesheet" href="styles/visualizacao.css">
 </head>
 <body>
     <h1>Informações do Estágio</h1>
     <div id="container">
-        <form action="visualizacao.php" method="post">          
-                    <?php
-                    echo "<label>Empresa: <br> {$estagio->getEmpresa()} </label><br>";
-                    echo "<label>Setor: <br> {$estagio->getSetorEmpresa()} </label><br>";
-                    echo "<label>Supervisor: <br> {$estagio->getNameSupervisor()} </label><br>";
-                    echo "<label>E-mail Supervisor: <br> {$estagio->getEmailSupervisor()} </label><br>";
-                    echo "<label>Tipo de Estágio: <br> {$estagio->getIdEstagio()}</label><br>";
-                    echo"<label>Data Início: <br> {$estagio->getDataInicio()}</label><br>";
-                    echo"<label>Data Fim: <br> {$estagio->getDataFim()}</label><br>";
-
-                    echo "<label>Tipo de Estágio: " . ($estagio->isObrigatorio() ? 'Obrigatório' : 'Não Obrigatório') . "</label> <br>";
-                    echo "<label> Vínculo Trabalhista: " . ($estagio->isVinculoTrabalhista() ? 'Carteira Assinada' : 'Sem Carteira') . "</label> <br>";
-
-                    ?>
-               
-               
-            <!-- // echo "<h2>Estágiario: {$estagio->getName()}</h2>";
-            // echo "<h2>Empresa: {$estagio->getEmpresa()}</h2>";
-            // echo "<h2>Setor:{$estagio->getSetorEmpresa()}</h2>";
-            // echo "<h2>Supervisor: {$estagio->getNameSupervisor()}</h2>";
-            // echo "<h2>Email Supervisor: {$estagio->getEmailSupervisor()}</h2>";
-            // echo "<h2>Período: {$estagio->getDataInicio()} a {$estagio->getDataFim()}</h2>";
-            // echo "<h2>Tipo de Estágio: " . ($estagio->isObrigatorio() ? 'Obrigatório' : 'Não Obrigatório') . "</h2>";
-            // echo "<h2>Vínculo Trabalhista: " . ($estagio->isVinculoTrabalhista() ? 'Carteira Assinada' : 'Sem Carteira') . "</h2>"; 
-            // echo "<h2> Status do Estágio: " . ($status = $estagio->getStatus()) . "</h2>";
-            // if ($status == Estagio::STATUS_FINALIZADO) {
-            //     echo '<span class="status-finalizado">Finalizado</span>';
-            // } elseif ($status == Estagio::STATUS_ATIVO) {
-            //     echo '<span class="status-ativo">Ativo</span>';
-            // } elseif ($status == Estagio::STATUS_EM_ANDAMENTO) {
-            //     echo '<span class="status-andamento">Em andamento</span>';
-            // } else {
-            //     echo '<span class="status-desconhecido">Desconhecido</span>';
-            // }
-             -->
-            <br>
-            <a href="listagem.php">Voltar para Listagem</a>
+        
+        <!-- Exibir mensagens de sucesso ou erro -->
+        <?php if (!empty($mensagemSucesso)): ?>
+            <div style="color: green; font-weight: bold; margin-bottom: 15px;">
+                <?php echo htmlspecialchars($mensagemSucesso); ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (!empty($mensagemErro)): ?>
+            <div style="color: red; font-weight: bold; margin-bottom: 15px;">
+                <?php echo htmlspecialchars($mensagemErro); ?>
+            </div>
+        <?php endif; ?>
+        
+        <!-- Informações do Estágio -->
+        <div style="margin-bottom: 20px;">
+            <h2>Estágiario: <?php echo htmlspecialchars($estagio->getName()); ?></h2>
+            <h2>Empresa: <?php echo htmlspecialchars($estagio->getEmpresa()); ?></h2>
+            <h2>Setor: <?php echo htmlspecialchars($estagio->getSetorEmpresa()); ?></h2>
+            <h2>Supervisor: <?php echo htmlspecialchars($estagio->getNameSupervisor()); ?></h2>
+            <h2>Email Supervisor: <?php echo htmlspecialchars($estagio->getEmailSupervisor()); ?></h2>
+            <h2>Período: <?php echo htmlspecialchars($estagio->getDataInicio()); ?> a <?php echo htmlspecialchars($estagio->getDataFim()); ?></h2>
+            <h2>Tipo de Estágio: <?php echo ($estagio->isObrigatorio() ? 'Obrigatório' : 'Não Obrigatório'); ?></h2>
+            <h2>Vínculo Trabalhista: <?php echo ($estagio->isVinculoTrabalhista() ? 'Carteira Assinada' : 'Sem Carteira'); ?></h2>
+            
+            <!-- Exibição do Status -->
+            <h2>Status do Estágio: 
+                <?php
+                $status = $estagio->getStatus();
+                if ($status == Estagio::STATUS_FINALIZADO) {
+                    echo '<span class="status-finalizado">Finalizado</span>';
+                } elseif ($status == Estagio::STATUS_ATIVO) {
+                    echo '<span class="status-ativo">Ativo</span>';
+                } elseif ($status == Estagio::STATUS_CONCLUIDO || $status == Estagio::STATUS_EM_ANDAMENTO) {
+                    echo '<span class="status-concluido">Concluído</span>';
+                } else {
+                    echo '<span class="status-desconhecido">Desconhecido</span>';
+                }
+                ?>
+            </h2>
+        </div>
+        
+        <!-- Formulário para alterar status -->
+        <form action="visualizacao.php" method="post" style="margin-bottom: 20px;">
+            <input type="hidden" name="idEstagio" value="<?php echo $estagio->getIdEstagio(); ?>">
+            
+            <label for="status"><strong>Alterar Status:</strong></label>
+            <select name="status" id="status" required>
+                <option value="<?php echo Estagio::STATUS_ATIVO; ?>" <?php echo ($status == Estagio::STATUS_ATIVO) ? 'selected' : ''; ?>>
+                    Ativo
+                </option>
+                <option value="<?php echo Estagio::STATUS_CONCLUIDO; ?>" <?php echo ($status == Estagio::STATUS_CONCLUIDO) ? 'selected' : ''; ?>>
+                    Concluído
+                </option>
+                <option value="<?php echo Estagio::STATUS_FINALIZADO; ?>" <?php echo ($status == Estagio::STATUS_FINALIZADO) ? 'selected' : ''; ?>>
+                    Finalizado
+                </option>
+            </select>
+            <button type="submit">Atualizar Status</button>
         </form>
+        
+        <!-- Botão rápido para Marcar como Concluído -->
+        <?php if ($status != Estagio::STATUS_CONCLUIDO && $status != Estagio::STATUS_FINALIZADO): ?>
+            <form action="visualizacao.php" method="post" style="display: inline;" onsubmit="return confirm('Marcar este estágio como Concluído?');">
+                <input type="hidden" name="idEstagio" value="<?php echo $estagio->getIdEstagio(); ?>">
+                <input type="hidden" name="status" value="<?php echo Estagio::STATUS_CONCLUIDO; ?>">
+                <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">
+                    ✓ Marcar como Concluído
+                </button>
+            </form>
+        <?php endif; ?>
+        
+        <br><br>
+        <a href="listagem.php">← Voltar para Listagem</a>
     </div>
 </body>
 </html>
