@@ -3,16 +3,13 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 18/11/2025 às 18:46
+-- Tempo de geração: 18/11/2025 às 19:38
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
-CREATE DATABASE IF NOT EXISTS `u157320114_extensaoG3G4_2`;
-USE `u157320114_extensaoG3G4_2`;
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -89,7 +86,39 @@ CREATE TABLE `estagio` (
 --
 
 INSERT INTO `estagio` (`idEstagio`, `nome`, `dataInicio`, `dataFim`, `empresa`, `setorEmpresa`, `vinculoTrabalhista`, `nomeSupervisor`, `obrigatorio`, `emailSupervisor`, `idAluno`, `idProfessor`, `status`, `professor`) VALUES
-(60, 'Mathias Scherer', '2025-11-01', '2025-11-15', 'Dell', 'Suporte Técnico Servidor', 0, 'Sergio Robertos', 1, 'robertosergio@email.com', 1, 20, 2, '');
+(60, 'Mathias Scherer', '2025-11-01', '2025-11-15', 'Dell', 'Suporte Técnico Servidor', 0, 'Sergio Robertos', 1, 'robertosergio@email.com', 1, 20, 1, '');
+
+--
+-- Acionadores `estagio`
+--
+DELIMITER $$
+CREATE TRIGGER `criaAutorizacaoImagem` AFTER INSERT ON `estagio` FOR EACH ROW BEGIN
+    INSERT INTO documento(idEstagio, nome, status, prazo)
+    VALUES (NEW.idEstagio, 'Autorização de Uso de Imagens', 0, null);
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `criaPlanoDeAtividades` AFTER INSERT ON `estagio` FOR EACH ROW BEGIN
+    INSERT INTO documento(idEstagio, nome, status, prazo)
+    VALUES (NEW.idEstagio, 'Plano de Atividades', 0, NOW() + INTERVAL 14 DAY);
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `criaRelatorioFinal` AFTER INSERT ON `estagio` FOR EACH ROW BEGIN
+    INSERT INTO documento(idEstagio, nome, status, prazo)
+    VALUES (NEW.idEstagio, 'Relatório Final', 0, NOW() + INTERVAL 180 DAY);
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `criaRelatorioParcial` AFTER INSERT ON `estagio` FOR EACH ROW BEGIN
+    INSERT INTO documento(idEstagio, nome, status, prazo)
+    VALUES (NEW.idEstagio, 'Relatório Parcial', 0, NOW() + INTERVAL 120 DAY);
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
