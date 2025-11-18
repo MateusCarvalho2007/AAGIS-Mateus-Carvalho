@@ -21,8 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idEstagio'])) {
         $statusesValidos = [
             Estagio::STATUS_FINALIZADO,
             Estagio::STATUS_ATIVO,
-            Estagio::STATUS_CONCLUIDO,
-            Estagio::STATUS_EM_ANDAMENTO
+            Estagio::STATUS_CONCLUIDO
         ];
         
         if (in_array($novoStatus, $statusesValidos, true)) {
@@ -95,7 +94,7 @@ try {
                     echo '<span class="status-finalizado">Finalizado</span>';
                 } elseif ($status == Estagio::STATUS_ATIVO) {
                     echo '<span class="status-ativo">Ativo</span>';
-                } elseif ($status == Estagio::STATUS_CONCLUIDO || $status == Estagio::STATUS_EM_ANDAMENTO) {
+                } elseif ($status == Estagio::STATUS_CONCLUIDO) {
                     echo '<span class="status-concluido">Concluído</span>';
                 } else {
                     echo '<span class="status-desconhecido">Desconhecido</span>';
