@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 13/11/2025 às 21:59
+-- Tempo de geração: 18/11/2025 às 18:46
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -18,8 +18,10 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Banco de dados: `u157320114_extensaog3g4_2`
+-- Banco de dados: `u157320114_extensaog3g4`
 --
+CREATE DATABASE IF NOT EXISTS `u157320114_extensaog3g4` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `u157320114_extensaog3g4`;
 
 -- --------------------------------------------------------
 
@@ -39,6 +41,22 @@ CREATE TABLE `admin` (
 
 INSERT INTO `admin` (`idAdmin`, `email`, `senha`) VALUES
 (3, 'admin@feliz.ifrs.edu.br', '$2y$10$KLHJQ40yLkZl2vsu4DEqZutrOgirbQvhIaaSzcRmB/o1CjIz5qSmC');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `documento`
+--
+
+CREATE TABLE `documento` (
+  `idDocumento` int(11) NOT NULL,
+  `idEstagio` int(11) NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `arquivo` text DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `dataEnvio` date DEFAULT NULL,
+  `prazo` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -305,6 +323,13 @@ ALTER TABLE `admin`
   ADD PRIMARY KEY (`idAdmin`);
 
 --
+-- Índices de tabela `documento`
+--
+ALTER TABLE `documento`
+  ADD PRIMARY KEY (`idDocumento`),
+  ADD KEY `idEstagio` (`idEstagio`);
+
+--
 -- Índices de tabela `estagio`
 --
 ALTER TABLE `estagio`
@@ -366,6 +391,12 @@ ALTER TABLE `admin`
   MODIFY `idAdmin` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT de tabela `documento`
+--
+ALTER TABLE `documento`
+  MODIFY `idDocumento` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `estagio`
 --
 ALTER TABLE `estagio`
@@ -410,6 +441,12 @@ ALTER TABLE `usuario_interesse`
 --
 -- Restrições para tabelas despejadas
 --
+
+--
+-- Restrições para tabelas `documento`
+--
+ALTER TABLE `documento`
+  ADD CONSTRAINT `documento_ibfk_1` FOREIGN KEY (`idEstagio`) REFERENCES `estagio` (`idEstagio`);
 
 --
 -- Restrições para tabelas `estagio`

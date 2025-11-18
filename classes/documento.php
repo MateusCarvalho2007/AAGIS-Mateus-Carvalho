@@ -6,26 +6,21 @@ class Documento {
     private $idDocumento;
     private $idEstagio;
     private $nome;
-    private $tipo;
     private $arquivo;
     private $status;
     private $dataEnvio;
     private $prazo;
-    const STATUS_PENDENTE = "Pendente";
-    const STATUS_ENVIADO = "Enviado";
-    const STATUS_CONCLUIDO = "Concluído";
-    const STATUS_ATRASADO = "Atrasado";
-    public function __construct(
-        $idEstagio = null,
-        $nome = '',
-        $tipo = '',
-        $arquivo = '',
-        $status = self::STATUS_PENDENTE,
-        $prazo = null
-    ) {
+
+    const STATUS_PENDENTE = 0;
+    const STATUS_ENVIADO = 1;
+    const STATUS_CONCLUIDO = 2;
+    const STATUS_ATRASADO = 3;
+    public function __construct($idEstagio = null, $nome = '', $arquivo = '',
+        $status = self::STATUS_PENDENTE, $prazo = null
+    ) 
+    {
         $this->idEstagio = $idEstagio;
         $this->nome = $nome;
-        $this->tipo = $tipo;
         $this->arquivo = $arquivo;
         $this->status = $status;
         $this->prazo = $prazo;
@@ -36,8 +31,6 @@ class Documento {
     public function setIdEstagio($idEstagio): void { $this->idEstagio = $idEstagio; }
     public function getNome() { return $this->nome; }
     public function setNome($nome): void { $this->nome = $nome; }
-    public function getTipo() { return $this->tipo; }
-    public function setTipo($tipo): void { $this->tipo = $tipo; }
     public function getArquivo() { return $this->arquivo; }
     public function setArquivo($arquivo): void { $this->arquivo = $arquivo; }
     public function getStatus() { return $this->status; }
@@ -51,7 +44,7 @@ class Documento {
         $conn = $conexao->getConnection();
         $stmt = $conn->prepare("
             INSERT INTO documento (
-                idEstagio, nome, tipo, arquivo, status, dataEnvio, prazo
+                idEstagio, nome, arquivo, status, dataEnvio, prazo
             ) VALUES (?, ?, ?, ?, ?, NOW(), ?)
         ");
 
@@ -61,11 +54,10 @@ class Documento {
         }
         $idEstagio = $this->idEstagio;
         $nome = $this->nome;
-        $tipo = $this->tipo;
         $arquivo = $this->arquivo;
         $status = $this->status;
         $prazo = $this->prazo;
-        $stmt->bind_param("isssss", $idEstagio, $nome, $tipo, $arquivo, $status, $prazo);
+        $stmt->bind_param("isssss", $idEstagio, $nome, $arquivo, $status, $prazo);
         $result = $stmt->execute();
         if ($result) {
             $this->idDocumento = $conn->insert_id;
@@ -82,7 +74,6 @@ class Documento {
         $sql = "
             UPDATE documento SET 
                 nome = '{$this->nome}',
-                tipo = '{$this->tipo}',
                 arquivo = '{$this->arquivo}',
                 status = '{$this->status}',
                 prazo = '{$this->prazo}'
@@ -101,7 +92,6 @@ class Documento {
         $d = new Documento(
             $row['idEstagio'] ?? null,
             $row['nome'] ?? '',
-            $row['tipo'] ?? '',
             $row['arquivo'] ?? '',
             $row['status'] ?? self::STATUS_PENDENTE,
             $row['prazo'] ?? null
@@ -120,7 +110,6 @@ class Documento {
             $d = new Documento(
                 $row['idEstagio'] ?? null,
                 $row['nome'] ?? '',
-                $row['tipo'] ?? '',
                 $row['arquivo'] ?? '',
                 $row['status'] ?? self::STATUS_PENDENTE,
                 $row['prazo'] ?? null

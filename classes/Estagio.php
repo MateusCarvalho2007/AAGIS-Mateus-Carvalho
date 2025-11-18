@@ -21,8 +21,6 @@ class Estagio{
 
     const STATUS_FINALIZADO = 0;
     const STATUS_ATIVO = 1;
-    const STATUS_EM_ANDAMENTO = 2;
-    // alias to keep naming consistent with UI (Concluído)
     const STATUS_CONCLUIDO = 2;
 
     public function __construct($name = '', $dataInicio = null, $dataFim = null,
@@ -340,7 +338,6 @@ class Estagio{
             case self::STATUS_ATIVO:
                 return 'Ativo';
             case self::STATUS_CONCLUIDO:
-            case self::STATUS_EM_ANDAMENTO:
                 return 'Concluído';
             default:
                 return 'Desconhecido';
@@ -348,7 +345,7 @@ class Estagio{
     }
 
     public function isConcluido(): bool{
-        return intval($this->status) === self::STATUS_CONCLUIDO || intval($this->status) === self::STATUS_EM_ANDAMENTO;
+        return intval($this->status) === self::STATUS_CONCLUIDO;
     }
 
     /**
@@ -384,7 +381,7 @@ class Estagio{
     }
 
     public function isAtivo(): bool{
-        return intval($this->status) === self::STATUS_ATIVO || intval($this->status) === self::STATUS_EM_ANDAMENTO;
+        return intval($this->status) === self::STATUS_ATIVO;
     }
 
     // marca um estágio como finalizado (soft-delete)

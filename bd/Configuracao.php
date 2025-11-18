@@ -3,5 +3,5 @@
     define("HOST","localhost");
     define("USUARIO","root");
     define("SENHA","");
-    define("BANCO","u157320114_extensaoG3G4");
+    define("BANCO","u157320114_extensaog3g4");
 ?>
