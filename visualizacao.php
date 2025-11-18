@@ -128,14 +128,14 @@ try {
                         <input type="hidden" name="idEstagio" value="<?php echo $estagio->getIdEstagio(); ?>">
                         <input type="hidden" name="status" value="<?php echo Estagio::STATUS_CONCLUIDO; ?>">
                         <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">
-                            ✓ Marcar como Concluído
+                            Marcar como Concluído ✓
                         </button>
                     </form>
                 <?php endif; ?>
             </div>
 
             <div class="alinhaA">
-                <a href="listagem.php">← Voltar para Listagem</a>
+                <a href="listagem.php">Voltar para Listagem</a>
             </div>
         </div>
     </div>
