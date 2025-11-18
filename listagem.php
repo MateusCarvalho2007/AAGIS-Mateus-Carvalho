@@ -91,7 +91,7 @@
                         ?>
                     </td>
                     <td>
-                        <?php if($estagio->isFinalizado()): ?>
+                        <?php if($estagio->isConcluido()): ?>
                             <span style="color:gray">Inacessível (Estagio Concluido)</span>
                         <?php else: ?>
                             <a href="editar.php?idEstagio=<?= $estagio->getIdEstagio() ?>">Editar</a>
