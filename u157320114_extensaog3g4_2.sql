@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 13/11/2025 às 21:14
+-- Tempo de geração: 13/11/2025 às 21:59
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -18,10 +18,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Banco de dados: `u157320114_extensaog3g4`
+-- Banco de dados: `u157320114_extensaog3g4_2`
 --
-CREATE DATABASE IF NOT EXISTS `u157320114_extensaog3g4` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `u157320114_extensaog3g4`;
 
 -- --------------------------------------------------------
 
@@ -60,15 +58,17 @@ CREATE TABLE `estagio` (
   `obrigatorio` tinyint(1) NOT NULL,
   `emailSupervisor` varchar(255) NOT NULL,
   `idAluno` int(11) NOT NULL,
-  `idProfessor` int(11) NOT NULL
+  `idProfessor` int(11) NOT NULL,
+  `status` int(10) NOT NULL,
+  `professor` varchar(200) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Despejando dados para a tabela `estagio`
 --
 
-INSERT INTO `estagio` (`idEstagio`, `nome`, `dataInicio`, `dataFim`, `empresa`, `setorEmpresa`, `vinculoTrabalhista`, `nomeSupervisor`, `obrigatorio`, `emailSupervisor`, `idAluno`, `idProfessor`) VALUES
-(60, 'Mathias Scherer', '2025-11-01', '2025-11-15', 'Dell', 'Suporte Técnico Servidor', 0, 'Sergio Robertos', 1, 'robertosergio@email.com', 1, 20);
+INSERT INTO `estagio` (`idEstagio`, `nome`, `dataInicio`, `dataFim`, `empresa`, `setorEmpresa`, `vinculoTrabalhista`, `nomeSupervisor`, `obrigatorio`, `emailSupervisor`, `idAluno`, `idProfessor`, `status`, `professor`) VALUES
+(60, 'Mathias Scherer', '2025-11-01', '2025-11-15', 'Dell', 'Suporte Técnico Servidor', 0, 'Sergio Robertos', 1, 'robertosergio@email.com', 1, 20, 2, '');
 
 -- --------------------------------------------------------
 
