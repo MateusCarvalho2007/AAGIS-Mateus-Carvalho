@@ -96,7 +96,9 @@
                         <?php else: ?>
                             <a href="editar.php?idEstagio=<?= $estagio->getIdEstagio() ?>">Editar</a>
                             |
-                            <a href="visualizacao.php?idEstagio=<?= $estagio->getIdEstagio() ?>">Visualizar</a>
+                            <a href="visualizacao.php?idEstagio=<?= $estagio->getIdEstagio() ?>">Visualizar Dados</a>
+                            |
+                            <a href="listagemDoc.php?idEstagio=<?= $estagio->getIdEstagio() ?>">Listagem Documentos</a>
                         <?php endif; ?>
                     </td>
                 </tr>
