@@ -77,15 +77,15 @@ try {
         <?php endif; ?>
         
         <!-- Informações do Estágio -->
-        <div style="margin-bottom: 20px;">
-            <h2>Estágiario: <?php echo htmlspecialchars($estagio->getName()); ?></h2>
-            <h2>Empresa: <?php echo htmlspecialchars($estagio->getEmpresa()); ?></h2>
-            <h2>Setor: <?php echo htmlspecialchars($estagio->getSetorEmpresa()); ?></h2>
-            <h2>Supervisor: <?php echo htmlspecialchars($estagio->getNameSupervisor()); ?></h2>
-            <h2>Email Supervisor: <?php echo htmlspecialchars($estagio->getEmailSupervisor()); ?></h2>
-            <h2>Período: <?php echo htmlspecialchars($estagio->getDataInicio()); ?> a <?php echo htmlspecialchars($estagio->getDataFim()); ?></h2>
-            <h2>Tipo de Estágio: <?php echo ($estagio->isObrigatorio() ? 'Obrigatório' : 'Não Obrigatório'); ?></h2>
-            <h2>Vínculo Trabalhista: <?php echo ($estagio->isVinculoTrabalhista() ? 'Carteira Assinada' : 'Sem Carteira'); ?></h2>
+        <div class="alinha" style="margin-bottom: 20px;">
+            <h2>Estágiario: <h3><?php echo htmlspecialchars($estagio->getName()); ?></h3></h2>
+            <h2>Empresa: <h3><?php echo htmlspecialchars($estagio->getEmpresa()); ?></h3></h2>
+            <h2>Setor: <h3><?php echo htmlspecialchars($estagio->getSetorEmpresa()); ?></h3></h2>
+            <h2>Supervisor: <h3><?php echo htmlspecialchars($estagio->getNameSupervisor()); ?></h3></h2>
+            <h2>Email Supervisor: <h3><?php echo htmlspecialchars($estagio->getEmailSupervisor()); ?></h3></h2>
+            <h2>Período: <h3> <?php echo htmlspecialchars($estagio->getDataInicio()); ?> a <?php echo htmlspecialchars($estagio->getDataFim()); ?></h3></h2>
+            <h2>Tipo de Estágio: <h3> <?php echo ($estagio->isObrigatorio() ? 'Obrigatório' : 'Não Obrigatório'); ?></h3></h2>
+            <h2>Vínculo Trabalhista: <h3><?php echo ($estagio->isVinculoTrabalhista() ? 'Carteira Assinada' : 'Sem Carteira'); ?></h3></h2>
             
             <!-- Exibição do Status -->
             <h2>Status do Estágio: 
@@ -102,40 +102,43 @@ try {
                 }
                 ?>
             </h2>
-        </div>
-        
-        <!-- Formulário para alterar status -->
-        <form action="visualizacao.php" method="post" style="margin-bottom: 20px;">
-            <input type="hidden" name="idEstagio" value="<?php echo $estagio->getIdEstagio(); ?>">
             
-            <label for="status"><strong>Alterar Status:</strong></label>
-            <select name="status" id="status" required>
-                <option value="<?php echo Estagio::STATUS_ATIVO; ?>" <?php echo ($status == Estagio::STATUS_ATIVO) ? 'selected' : ''; ?>>
-                    Ativo
-                </option>
-                <option value="<?php echo Estagio::STATUS_CONCLUIDO; ?>" <?php echo ($status == Estagio::STATUS_CONCLUIDO) ? 'selected' : ''; ?>>
-                    Concluído
-                </option>
-                <option value="<?php echo Estagio::STATUS_FINALIZADO; ?>" <?php echo ($status == Estagio::STATUS_FINALIZADO) ? 'selected' : ''; ?>>
-                    Finalizado
-                </option>
-            </select>
-            <button type="submit">Atualizar Status</button>
-        </form>
-        
-        <!-- Botão rápido para Marcar como Concluído -->
-        <?php if ($status != Estagio::STATUS_CONCLUIDO && $status != Estagio::STATUS_FINALIZADO): ?>
-            <form action="visualizacao.php" method="post" style="display: inline;" onsubmit="return confirm('Marcar este estágio como Concluído?');">
-                <input type="hidden" name="idEstagio" value="<?php echo $estagio->getIdEstagio(); ?>">
-                <input type="hidden" name="status" value="<?php echo Estagio::STATUS_CONCLUIDO; ?>">
-                <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">
-                    ✓ Marcar como Concluído
-                </button>
-            </form>
-        <?php endif; ?>
-        
-        <br><br>
-        <a href="listagem.php">← Voltar para Listagem</a>
+            <div class>
+                <!-- Formulário para alterar status -->
+                <form action="visualizacao.php" method="post" style="margin-bottom: 20px;">
+                    <input type="hidden" name="idEstagio" value="<?php echo $estagio->getIdEstagio(); ?>">
+                    
+                    <label for="status"><strong>Alterar Status:</strong></label>
+                    <select name="status" id="status" required>
+                        <option value="<?php echo Estagio::STATUS_ATIVO; ?>" <?php echo ($status == Estagio::STATUS_ATIVO) ? 'selected' : ''; ?>>
+                            Ativo
+                        </option>
+                        <option value="<?php echo Estagio::STATUS_CONCLUIDO; ?>" <?php echo ($status == Estagio::STATUS_CONCLUIDO) ? 'selected' : ''; ?>>
+                            Concluído
+                        </option>
+                        <option value="<?php echo Estagio::STATUS_FINALIZADO; ?>" <?php echo ($status == Estagio::STATUS_FINALIZADO) ? 'selected' : ''; ?>>
+                            Finalizado
+                        </option>
+                    </select>
+                    <button type="submit">Atualizar Status</button>
+                </form>
+                
+                <!-- Botão rápido para Marcar como Concluído -->
+                <?php if ($status != Estagio::STATUS_CONCLUIDO && $status != Estagio::STATUS_FINALIZADO): ?>
+                    <form action="visualizacao.php" method="post" style="display: inline;" onsubmit="return confirm('Marcar este estágio como Concluído?');">
+                        <input type="hidden" name="idEstagio" value="<?php echo $estagio->getIdEstagio(); ?>">
+                        <input type="hidden" name="status" value="<?php echo Estagio::STATUS_CONCLUIDO; ?>">
+                        <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">
+                            ✓ Marcar como Concluído
+                        </button>
+                    </form>
+                <?php endif; ?>
+            </div>
+
+            <div class="alinhaA">
+                <a href="listagem.php">← Voltar para Listagem</a>
+            </div>
+        </div>
     </div>
 </body>
 </html>
