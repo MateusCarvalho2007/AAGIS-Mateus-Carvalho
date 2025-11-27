@@ -263,7 +263,7 @@ if (isset($documento) && $documento) {
     // preparar exibição do prazo
     if (!empty($prazo)) {
         // exibir no formato dd/mm/YYYY H:i quando possível
-        $prazoDisplay = date('d/m/Y H:i', strtotime($prazo));
+        $prazoDisplay = date('d/m/Y', strtotime($prazo));
 
         // calcular dias restantes
         $now = time();
@@ -403,16 +403,17 @@ if (isset($documento) && $documento) {
         
         .form-actions {
             display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-            flex-wrap: wrap;
+            flex-direction: row;
             justify-content: center;
+            align-items: center; 
+            justify-content: center;
+            align-items: center;
+            
         }
         
         .btn-cancel {
             background-color: #6c757d;
             color: #fff;
-            padding: 0.9rem 2rem;
             font-weight: bold;
             font-size: 1rem;
             border: none;
@@ -480,16 +481,61 @@ if (isset($documento) && $documento) {
             border-radius: 5px;
             border-left: 3px solid #007bff;
         }
+
+        .ines{
+            all: revert;
+        }
+
+        .butao{
+            margin-right: 10px;
+            background-color: #007bff;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+            
+        }
+
+        .butao:hover{
+            background-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            color: #fff;
+        }
+
+        .doc{
+            text-shadow: none !important;
+        }
+
+        .comment-form{
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+        .comments-list{
+            weight: 100%;
+            width: 100%;
+        }
+
     </style>
 </head>
 <body>
     <h1>Anexar Documento (<?php echo $estagio->getName() ?> - <?php echo $estagio->getEmpresa() ?>)</h1>
 
-    <form action="AnexarDoc.php?idEstagio=<?php echo $idEstagio; ?>&idDocumento=<?php echo $idDocumento; ?>" method="POST" enctype="multipart/form-data">
+    <form action="AnexarDoc.php?idEstagio=<?php echo $idEstagio; ?>&idDocumento=<?php echo $idDocumento; ?>" method="POST" enctype="multipart/form-data" style="width: 720px;">
     <div class="back-button-container">
 </div>   
     <div class="form-group">
-            <h1 style="color: black;"><?php echo isset($documento) && $documento ? htmlspecialchars($documento->getNome()) : 'Documento';?></h1>
+            <h1 style="color: black;" class="doc"><?php echo isset($documento) && $documento ? htmlspecialchars($documento->getNome()) : 'Documento';?></h1>
         </div>
         
         <div class="form-group">
@@ -550,16 +596,19 @@ if (isset($documento) && $documento) {
         </div>
         
         <div class="form-actions">
-            <button type="submit">Anexar Documento</button>
+            <button type="submit" class="butao">Anexar Documento</button>
             <!-- Botão de Editar Documento -->
             <?php if($_SESSION['tipo'] == 'professor'):?>
                 <a href="editarDocumento.php?idDocumento=<?= $idDocumento ?>&idEstagio=<?= $idEstagio ?>" 
-                class="btn-cancel" 
+                class="butao" 
                 style="background-color:#007bff;">
                 Editar Documento
-                </a>
+                </a>   
             <?php endif; ?>
-            <a href="listagemDoc.php?idEstagio=<?php echo $idEstagio; ?>" style="background-color: #6c757d; color: #fff; padding: 0.75rem 1.5rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; transition: all 0.3s ease;">Voltar</a>
+            
+            <a href="listagemDoc.php?idEstagio=<?php echo $idEstagio; ?>" style="background-color: #6c757d;
+             color: #fff; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;
+             text-decoration: none; display: inline-block; text-align: center; transition: all 0.3s ease;">Voltar</a>
         </div>
 
         <?php if (!empty($message)): ?>
@@ -577,25 +626,12 @@ if (isset($documento) && $documento) {
         <h2 style="color: white; border-bottom: 2px solid #007bff; padding-bottom: 1rem;">Comentários</h2>
         
         <!-- Mensagens de feedback -->
-        <?php if (!empty($comentarioMessage)): ?>
-            <div class="message-container" style="margin-bottom: 1rem;">
-                <div class="file-info" style="background:#e6ffed; border-left:4px solid #28a745; color:#155724;">
-                    <?php echo htmlspecialchars($comentarioMessage); ?>
-                </div>
-            </div>
-        <?php endif; ?>
-        <?php if (!empty($comentarioError)): ?>
-            <div class="message-container" style="margin-bottom: 1rem;">
-                <div class="file-info" style="background:#fff0f0; border-left:4px solid #dc3545; color:#721c24;">
-                    <?php echo htmlspecialchars($comentarioError); ?>
-                </div>
-            </div>
-        <?php endif; ?>
+        
         
         <!-- Formulário para adicionar novo comentário -->
         <div class="comment-form" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
             <h3 style="color: #333; margin-top: 0;">Adicionar Comentário</h3>
-            <form method="POST" action="">
+            <form action="" method="post" class="ines" style="width: 100%;">
                 <input type="hidden" name="acao" value="adicionar_comentario">
                 <div class="form-group">
                 <div class="info-value">Comentários (<?php echo contarComentarios($idDocumento); ?>)</div>
@@ -604,49 +640,57 @@ if (isset($documento) && $documento) {
                     <textarea name="comentario" id="comentario" rows="4" placeholder="Digite seu comentário..." required 
                               style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-family: Arial, sans-serif; resize: vertical; box-sizing: border-box;"></textarea>
                 </div>
-                <div style="display: flex; gap: 1rem; align-items: center;">
-                    <button type="submit" class="btn-browse" style="background-color: #28a745;">Enviar Comentário</button>
-                    <a href="listagemDoc.php?idEstagio=<?php echo $idEstagio; ?>" style="background-color: #6c757d; color: #fff; padding: 0.65rem 1.5rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; transition: all 0.3s ease;">Voltar</a>
+                <div style="display: flex; gap: 1rem; align-items: center; justify-content: center;">
+                    <button type="submit" class="btn-browse" style="padding: 0.65rem 1.5rem; background-color: #28a745;">Enviar Comentário</button>
+                    <a href="listagemDoc.php?idEstagio=<?php echo $idEstagio; ?>" style="background-color: #6c757d;
+                    color: #fff; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; 
+                    text-decoration: none; display: inline-block; text-align: center; transition: all 0.3s ease; height: 51px;
+                    align-items: center; justify-content: center;">Voltar</a>
                 </div>
             </form>
         </div>
-        
-        <!-- Exibir comentários existentes -->
-        <div class="comments-list">
-            <?php 
-                $comentarios = Comentario::findByDocumento($idDocumento);
-                if (empty($comentarios)): 
-            ?>
-            <?php else: ?>
-                <?php foreach ($comentarios as $comentario): ?>
-                    <div class="comment-item" style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                            <div>
-                                <strong style="color: #333; font-size: 1rem;"><?php echo htmlspecialchars($comentario->getNomeUsuario() ?? 'Usuário Desconhecido'); ?></strong>
-                                <span style="color: #999; font-size: 0.85rem; margin-left: 0.5rem;">
-                                    <?php 
-                                        $data = DateTime::createFromFormat('Y-m-d H:i:s', $comentario->getDataHora());
-                                        echo $data ? $data->format('d/m/Y H:i') : htmlspecialchars($comentario->getDataHora());
-                                    ?>
-                                </span>
-                            </div>
-                            <?php if ($comentario->getIdUsuario() == $_SESSION['idUsuario']): ?>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <button type="button" class="btn-edit" onclick="editarComentario(<?php echo $comentario->getIdComentario(); ?>, <?php echo htmlspecialchars(json_encode($comentario->getComentario())); ?>)" 
-                                            style="background: #17a2b8; color: white; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
-                                        Editar
-                                    </button>
-                                    <button type="button" class="btn-delete" onclick="deletarComentario(<?php echo $comentario->getIdComentario(); ?>)" 
-                                            style="background: #dc3545; color: white; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
-                                        Deletar
-                                    </button>
+        <div class="comment-form" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; ">
+            <!-- Exibir comentários existentes -->
+            <div class="comments-list">
+                <?php 
+                    $comentarios = Comentario::findByDocumento($idDocumento);
+                    if (empty($comentarios)): 
+                ?>
+                <?php else: ?>
+                    <?php foreach ($comentarios as $comentario): ?>
+                        <div class="comment-item" style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; margin-top: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                <div>
+                                    <strong style="color: #333; font-size: 1rem;"><?php echo htmlspecialchars($comentario->getNomeUsuario() ?? 'Usuário Desconhecido'); ?></strong>
+                                    <span style="color: #999; font-size: 0.85rem; margin-left: 0.5rem;">
+                                        <?php 
+                                            $data = DateTime::createFromFormat('Y-m-d H:i:s', $comentario->getDataHora());
+                                            echo $data ? $data->format('d/m/Y H:i') : htmlspecialchars($comentario->getDataHora());
+                                        ?>
+                                    </span>
                                 </div>
-                            <?php endif; ?>
+                                <?php if ($comentario->getIdUsuario() == $_SESSION['idUsuario']): ?>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button type="button" class="btn-edit" onclick="editarComentario(<?php echo $comentario->getIdComentario(); ?>, <?php echo htmlspecialchars(json_encode($comentario->getComentario())); ?>)" 
+                                                style="background: #17a2b8; color: white; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                                            Editar
+                                        </button>
+                                        <button type="button" class="btn-delete" onclick="deletarComentario(<?php echo $comentario->getIdComentario(); ?>)" 
+                                                style="background: #dc3545; color: white; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                                            Deletar
+                                        </button>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <p style="color: #666; margin: 1rem 0; line-height: 1.5; word-wrap: break-word;"><?php echo nl2br(htmlspecialchars($comentario->getComentario())); ?></p>
                         </div>
-                        <p style="color: #666; margin: 1rem 0; line-height: 1.5; word-wrap: break-word;"><?php echo nl2br(htmlspecialchars($comentario->getComentario())); ?></p>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+            <a href="listagemDoc.php?idEstagio=<?php echo $idEstagio; ?>" style="background-color: #6c757d;
+                    color: #fff; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; 
+                    text-decoration: none; display: inline-block; text-align: center; transition: all 0.3s ease; height: 51px;
+                    align-items: center; justify-content: center;">Voltar</a>
         </div>
     </div>
     <?php endif; ?>
@@ -655,7 +699,7 @@ if (isset($documento) && $documento) {
     <div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
         <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); width: 90%; max-width: 500px;">
             <h3 style="color: #333; margin-top: 0;">Editar Comentário</h3>
-            <form method="POST" action="">
+            <form method="POST" action="" class="ines">
                 <input type="hidden" name="acao" value="editar_comentario">
                 <input type="hidden" name="idComentario" id="editIdComentario">
                 <div class="form-group">
@@ -675,7 +719,7 @@ if (isset($documento) && $documento) {
         <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); width: 90%; max-width: 400px; text-align: center;">
             <h3 style="color: #333; margin-top: 0;">Confirmar Exclusão</h3>
             <p style="color: #666;">Tem certeza que deseja deletar este comentário? Esta ação não pode ser desfeita.</p>
-            <form method="POST" action="">
+            <form method="POST" action="" class="ines">
                 <input type="hidden" name="acao" value="deletar_comentario">
                 <input type="hidden" name="idComentario" id="deleteIdComentario">
                 <div style="display: flex; gap: 1rem; justify-content: center;">

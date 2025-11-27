@@ -83,13 +83,15 @@ try {
         <?php endif; ?>
         
         <!-- Informações do Estágio -->
+        <?php $DI = date('d/m/Y', strtotime($estagio->getDataInicio())); ?>
+        <?php $DF = date('d/m/Y', strtotime($estagio->getDataFim())); ?>
         <div class="alinha" style="margin-bottom: 20px;">
             <h2>Estágiario: <h3><?php echo htmlspecialchars($estagio->getName()); ?></h3></h2>
             <h2>Empresa: <h3><?php echo htmlspecialchars($estagio->getEmpresa()); ?></h3></h2>
             <h2>Setor: <h3><?php echo htmlspecialchars($estagio->getSetorEmpresa()); ?></h3></h2>
             <h2>Supervisor: <h3><?php echo htmlspecialchars($estagio->getNameSupervisor()); ?></h3></h2>
             <h2>Email Supervisor: <h3><?php echo htmlspecialchars($estagio->getEmailSupervisor()); ?></h3></h2>
-                <h2>Período: <h3> <?php echo str_replace('-', '/', htmlspecialchars($estagio->getDataInicio())); ?> a <?php echo str_replace('-', '/', htmlspecialchars($estagio->getDataFim())); ?></h3></h2>
+            <h2>Período: <h3> <?php echo str_replace('-', '/', htmlspecialchars($DI)); ?> a <?php echo str_replace('-', '/', htmlspecialchars($DF)); ?></h3></h2>
             <h2>Tipo de Estágio: <h3> <?php echo ($estagio->isObrigatorio() ? 'Obrigatório' : 'Não Obrigatório'); ?></h3></h2>
             <h2>Vínculo Trabalhista: <h3><?php echo ($estagio->isVinculoTrabalhista() ? 'Carteira Assinada' : 'Sem Carteira'); ?></h3></h2>
             

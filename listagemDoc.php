@@ -155,7 +155,18 @@ $statusClass = [
             text-decoration: none;
             border-radius: 5px;
             font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
+
+        .btn-secondary:hover{
+            background-color: #6c757d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            color: #fff;
+
+        }
+        
 
         .documents-container {
             background-color: white;
@@ -292,9 +303,9 @@ $statusClass = [
     <header>
         <div class="header-content">
             <h1>Lista de Documentos</h1>
+            Bem-vindo, <?= $_SESSION['tipo'] ?> <?= $_SESSION['nome'] ?>, ao AAGIS!
             <div class="user-info">
             <a href="perguntas.php" style="color: #007bff; text-decoration: none; font-weight: 600;">Perguntas Frequentes</a>
-                Bem-vindo, <?= $_SESSION['tipo'] ?> <?= $_SESSION['nome'] ?>, ao AAGIS!
                 <a href="logout.php" class="btn-logout">Sair</a>
             </div>
         </div>
@@ -383,7 +394,21 @@ $statusClass = [
                                 }
                             ?>
                         </div>
-                        <div><?php echo ($doc->getArquivo() && $doc->getDataEnvio()) ? date('d/m/Y', strtotime($doc->getDataEnvio())) : '--'; ?></div>
+                        <div style="<?php
+                            $dataEnvio = $doc->getDataEnvio();
+                            $prazo = $doc->getPrazo();
+                            
+                            if ($dataEnvio && $prazo) {
+                                $dataEnvioo = strtotime($dataEnvio);
+                                $prazoo = strtotime($prazo);
+                                
+                                if ($dataEnvioo > $prazoo) {
+                                    echo 'color: red; font-weight: bold;';
+                                }
+                            }
+                        ?>">
+                            <?php echo ($dataEnvio) ? date('d/m/Y', strtotime($dataEnvio)) : '--'; ?>
+                        </div>
                         <div><?php echo $doc->getPrazo() ? date('d/m/Y', strtotime($doc->getPrazo())) : '--'; ?></div>
                         <div class="document-actions">
                             <?php if ($doc->getArquivo()): ?>
