@@ -1,4 +1,3 @@
-
     <?php
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
@@ -35,34 +34,38 @@
             <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
                 <h1 style="margin: 0;">Lista de Estágios</h1>
                 <?php if (isset($_SESSION['nome'])): ?>
-                    <div style="display: flex; align-items: center;">
-                        <span style="margin-right: 15px;">
-                            Bem-vindo, ao AAGIS!
-                        </span>
-                        <a href="logout.php" style="
-                            background-color: #dc3545;
-                            color: white;
-                            padding: 8px 20px;
-                            text-decoration: none;
-                            border-radius: 5px;
-                            font-size: 18px;">Sair</a>
+                    <div style="display: flex; align-items: center; gap: 18px">
+                        <a href="notificacoes.php" 
+            style="color: #007bff; text-decoration: none; font-weight: 600; font-size: 20px; margin-right: 10px;">
+    🔔
+            </a>
+            <a href="perguntas.php" style="color: #007bff; text-decoration: none; font-weight: 600;">Perguntas Frequentes</a>
+            <span style="margin-right: 15px;">
+            Bem-vindo, <?= $_SESSION['tipo'] ?> <?= $_SESSION['nome'] ?>, ao AAGIS!
+            </span>
+                <a href="logout.php" style="
+                    background-color: #dc3545;
+                    color: white;
+                    padding: 8px 20px;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    font-size: 18px;">Sair</a>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
-        
-        <br>
-        <br>
         <?php if($_SESSION['tipo'] == 'professor'): ?>
-            <h3><a href="cadastro.php" style="
-                    background-color: white;
-                    color: black;
+            <a href="cadastro.php" style="
+                    margin-left: 10px;
+                    background-color: #6c757d;
+                    color: white;
                     padding: 8px 12px;
                     text-decoration: none;
                     border-radius: 5px;
-                    font-size: 20px;">Cadastrar Novo Estágio</a></h3>
+                    font-size: 20px;">Cadastrar Novo Estágio</a>
         <?php endif; ?>
-                
+        <br>
+        <br>
         <table border="1" cellpadding="6" cellspacing="0">
             <thead>
                 <tr>
@@ -77,42 +80,64 @@
             </thead>
             <tbody>
             <?php foreach($estagios as $estagio): ?>
-                <tr>
-                    <?php if($_SESSION['tipo'] == 'professor'): ?>
-                        <td><?= htmlspecialchars($estagio->getName()) ?></td>
-                    <?php endif; ?>
-                    <td><?= htmlspecialchars($estagio->getEmpresa()) ?></td>
-                    <td><?= htmlspecialchars($estagio->getDataInicio()) ?> - <?= htmlspecialchars($estagio->getDataFim()) ?></td>
-                    <td>
-                        <?php
-                            $s = $estagio->getStatus();
-                            // usa helper para rótulo consistente
-                            echo \Estagio::getStatusLabel($s);
-                        ?>
-                    </td>
-                    <td>
-                        <?php if($estagio->isConcluido()): ?>
-                            <span style="color:gray">Inacessível (Estagio Concluido)</span>
-                        <?php else: ?>
-                            <a href="editar.php?idEstagio=<?= $estagio->getIdEstagio() ?>">Editar</a>
-                            |
-                            <a href="visualizacao.php?idEstagio=<?= $estagio->getIdEstagio() ?>">Visualizar Dados</a>
-                            |
-                            <a href="listagemDoc.php?idEstagio=<?= $estagio->getIdEstagio() ?>">Listagem Documentos</a>
+                <?php if($estagio->getSetorEmpresa() == ""): ?>
+                    <?php $user = Usuario::acharUsuario($estagio->getIdAluno()); ?>
+                    <?php $estagio->setName($user->getNome()) ?>
+                    <tr>
+                        <?php if($_SESSION['tipo'] == 'professor'): ?>
+                            <td style = "color:red;"><?= htmlspecialchars($estagio->getName()) ?></td>
+                            <td style = "color:red;"><?= htmlspecialchars($estagio->getEmpresa()) ?></td>
+                            <td style = "color:red;">CADASTRO DE ESTÁGIO PENDENTE!!!</td>
+                            <td style = "color:red;">CADASTRO DE ESTÁGIO PENDENTE!!!</td>
+                            <td><a href="editar.php?idEstagio=<?= $estagio->getIdEstagio() ?>" style="
+                                background-color: #6c757d; color: #fff;
+                                padding: 8px 12px;
+                                text-decoration: none;
+                                border-radius: 5px;
+                                font-size: 15px;">Completar Cadastro</a>
+                            </td>
                         <?php endif; ?>
-                    </td>
-                </tr>
+                    </tr>
+                <?php else: ?>
+                    <tr>
+                        <?php if($_SESSION['tipo'] == 'professor'): ?>
+                            <td><?= htmlspecialchars($estagio->getName()) ?></td>
+                        <?php endif; ?>
+                        <td><?= htmlspecialchars($estagio->getEmpresa()) ?></td>
+                        <td><?= str_replace('-', '/', htmlspecialchars($estagio->getDataInicio())) ?> - <?= str_replace('-', '/', htmlspecialchars($estagio->getDataFim())) ?></td>
+                        <td>
+                            <?php
+                                $s = $estagio->getStatus();
+                                // usa helper para rótulo consistente
+                                echo \Estagio::getStatusLabel($s);
+                            ?>
+                        </td>
+                        <td>
+                            <?php if($estagio->isConcluido()): ?>
+                                <span style="color:gray">Inacessível (Estagio Concluido)</span>
+                            <?php else: ?>
+                                
+                                <a href="editar.php?idEstagio=<?= $estagio->getIdEstagio() ?>">Editar</a>
+                                |
+                                <a href="visualizacao.php?idEstagio=<?= $estagio->getIdEstagio() ?>">Visualizar Dados</a>
+                                |
+                                <a href="listagemDoc.php?idEstagio=<?= $estagio->getIdEstagio() ?>">Listagem Documentos</a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endif; ?>
             <?php endforeach; ?>
             </tbody>
         </table>
         <?php if($_SESSION['tipo'] == 'professor'): ?>
-            <h3><a href="cadastro.php" style="
-                    background-color: white;
-                    color: black;
+            <a href="cadastro.php" style="
+                    margin-left: 10px;
+                    background-color: #6c757d;
+                    color: white;
                     padding: 8px 12px;
                     text-decoration: none;
                     border-radius: 5px;
-                    font-size: 20px;">Cadastrar Novo Estágio</a></h3>
+                    font-size: 20px;">Cadastrar Novo Estágio</a>
         <?php endif; ?>
     </body>
     </html>

@@ -10,6 +10,7 @@ if(isset($_GET['idEstagio'])){
 // processa atualização
 if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save']) && isset($_POST['idEstagio'])){
      $id = intval($_POST['idEstagio']);
+     $professorNome = $_SESSION['nome'];
      $e = Estagio::find($id);
      $e->setDataInicio($_POST['dataInicio'] ?? $e->getDataInicio());
      $e->setDataFim($_POST['dataFim'] ?? $e->getDataFim());
@@ -19,6 +20,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save']) && isset($_POS
      $e->setEmpresa($_POST['nomeEmpresa'] ?? $e->getEmpresa());
      $e->setNameSupervisor($_POST['nomeSupervisor'] ?? $e->getNameSupervisor());
      $e->setEmailSupervisor($_POST['emailSupervisor'] ?? $e->getEmailSupervisor());
+     $e->setProfessor($professorNome ?? $e->getProfessor());
      $e->update();
      header('Location: listagem.php');
      exit;
@@ -33,27 +35,24 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save']) && isset($_POS
      <link rel="stylesheet" href="styles/cadastro.css">
 </head>
 <body>
+     <div class="alinhaAviso">
      <h1>Editar Estágio</h1>
 
      <?php if(!$estagio): ?>
           <p>Nenhum estágio selecionado. <a href="listagem.php">Voltar à lista</a></p>
      <?php else: ?>
           <?php if($estagio->isFinalizado()): ?>
-               <p>Este estágio está finalizado e encontra-se inativo no sistema. Você não pode editar suas informações.</p>
-               <ul>
-                    <li>Empresa: <?= htmlspecialchars($estagio->getEmpresa()) ?></li>
-                    <li>Período: <?= htmlspecialchars($estagio->getDataInicio()) ?> - <?= htmlspecialchars($estagio->getDataFim()) ?></li>
-                    <li>Setor: <?= htmlspecialchars($estagio->getSetorEmpresa()) ?></li>
-                    <li>Supervisor: <?= htmlspecialchars($estagio->getNameSupervisor()) ?> (<?= htmlspecialchars($estagio->getEmailSupervisor()) ?>)</li>
-               </ul>
-               <a href="listagem.php">Voltar à lista</a>
+               <div class="aviso">
+                    <p>Este estágio está finalizado e encontra-se inativo no sistema. Você não pode editar suas informações.</p>
+                    <a href="listagem.php">Voltar à lista</a>
+               </div>
           <?php else: ?>
                <form method="post" action="editar.php">
                     
-                    <label>Empresa: <input type="text" name="nomeEmpresa" value="<?= htmlspecialchars($estagio->getEmpresa()) ?>"></label><br>
-                    <label>Setor: <input type="text" name="setor" value="<?= htmlspecialchars($estagio->getSetorEmpresa()) ?>"></label><br>
-                    <label>Supervisor: <input type="text" name="nomeSupervisor" value="<?= htmlspecialchars($estagio->getNameSupervisor()) ?>"></label><br>
-                    <label>E-mail Supervisor: <input type="email" name="emailSupervisor" value="<?= htmlspecialchars($estagio->getEmailSupervisor()) ?>"></label><br>
+                    <label>Empresa: <input type="text" name="nomeEmpresa" value="<?= htmlspecialchars($estagio->getEmpresa()) ?>" required></label><br>
+                    <label>Setor: <input type="text" name="setor" value="<?= htmlspecialchars($estagio->getSetorEmpresa()) ?>" required></label><br>
+                    <label>Supervisor: <input type="text" name="nomeSupervisor" value="<?= htmlspecialchars($estagio->getNameSupervisor()) ?>" required></label><br>
+                    <label>E-mail Supervisor: <input type="email" name="emailSupervisor" value="<?= htmlspecialchars($estagio->getEmailSupervisor()) ?>" required></label><br>
 
 
                     <input type="hidden" name="idEstagio" value="<?= $estagio->getIdEstagio() ?>">
@@ -71,12 +70,16 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save']) && isset($_POS
                          <label><input type="radio" name="vinculo" value="0" <?= !$estagio->isVinculoTrabalhista() ? 'checked' : '' ?>> Sem Carteira</label>
                     </label>
 
-                    
+                    <div class="alinhaT">
                     <button type="submit" name="save">Salvar</button>
                     <a href="listagem.php">Voltar</a>
+                    </div>
                </form>
+     
           <?php endif; ?>
      <?php endif; ?>
+     </div>
+
 
 </body>
 </html>

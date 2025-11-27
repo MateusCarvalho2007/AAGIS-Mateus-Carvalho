@@ -30,8 +30,35 @@ $comentarios = $conn->consulta($sql);
 
 <p><strong>Título:</strong> <?= $doc->getTitulo(); ?></p>
 <p><strong>Descrição:</strong> <?= $doc->getDescricao(); ?></p>
-<p><strong>Prazo:</strong> <?= $doc->getPrazo(); ?></p>
-<p><strong>Status:</strong> <?= $doc->getStatus(); ?></p>
+<p><strong>Prazo:</strong> <?= $doc->getPrazo() ? date('d/m/Y', strtotime($doc->getPrazo())) : '--'; ?></p>
+<?php
+$statusText = [
+    0 => 'Em Análise',
+    1 => 'Entregue',
+    2 => 'Concluído',
+    3 => 'Atrasado'
+];
+$arquivo = $doc->getArquivo();
+$prazo = $doc->getPrazo();
+$dataEnvio = $doc->getDataEnvio();
+$desiredStatus = intval($doc->getStatus());
+if (empty($arquivo)) {
+    if (!empty($prazo) && strtotime($prazo) < time()) {
+        $desiredStatus = 3; // Atrasado
+    } else {
+        $desiredStatus = 0; // Em Análise
+    }
+} else {
+    if (!empty($dataEnvio)) {
+        $desiredStatus = 1; // Entregue
+    } else if (!empty($prazo) && strtotime($prazo) < time()) {
+        $desiredStatus = 3; // Atrasado
+    } else {
+        $desiredStatus = 1; // Entregue
+    }
+}
+?>
+<p><strong>Status:</strong> <?= $statusText[$desiredStatus] ?? 'Desconhecido'; ?></p>
 
 <?php if ($doc->getArquivo() != ""): ?>
     <a href="<?= $doc->getArquivo(); ?>" target="_blank">Visualizar PDF</a>
@@ -49,7 +76,7 @@ $comentarios = $conn->consulta($sql);
     <?php foreach ($comentarios as $c): ?>
         <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
             <p><?= $c["comentario"]; ?></p>
-            <p><small><?= $c["dataHora"]; ?></small></p>
+            <p><small><?= !empty($c["dataHora"]) ? date('d/m/Y H:i', strtotime($c["dataHora"])) : ''; ?></small></p>
         </div>
     <?php endforeach; ?>
 <?php endif; ?>

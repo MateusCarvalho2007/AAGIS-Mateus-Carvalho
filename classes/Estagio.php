@@ -156,8 +156,8 @@ class Estagio{
             "INSERT INTO estagio (
                 nome, dataInicio, dataFim, empresa, setorEmpresa,
                 vinculoTrabalhista, nomeSupervisor, obrigatorio,
-                emailSupervisor, idAluno, idProfessor
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                emailSupervisor, idAluno, idProfessor, professor, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
 
         if (!$stmt) {
@@ -177,10 +177,12 @@ class Estagio{
         $emailSupervisor = $this->emailSupervisor;
         $idAluno = $this->idAluno !== null ? intval($this->idAluno) : null;
         $idProfessor = $this->idProfessor !== null ? intval($this->idProfessor) : null;
+        $professor = $this->professor;
+        $status = intval($this->status);
 
         // tipos: nome(s), dataInicio(s), dataFim(s), empresa(s), setorEmpresa(s), vinculo(i),
         // nomeSupervisor(s), obrigatorio(i), emailSupervisor(s), idAluno(i), idProfessor(i)
-        $types = "sssssisisii"; // 11 parâmetros
+        $types = "sssssisisiisi"; // 13 parâmetros
 
         // bind_param exige parâmetros por referência; usar variáveis locais garante isso
         if (!$stmt->bind_param($types,
@@ -194,7 +196,9 @@ class Estagio{
             $obrigatorio,
             $emailSupervisor,
             $idAluno,
-            $idProfessor
+            $idProfessor,
+            $professor,
+            $status
         )) {
             error_log("Erro ao bind_param: " . $stmt->error);
             $stmt->close();
@@ -248,7 +252,7 @@ class Estagio{
                 $resultado['obrigatorio'] ?? 0,
                 $resultado['nomeSupervisor'] ?? '',
                 $resultado['emailSupervisor'] ?? '',
-                $profNome,
+                $resultado['professor'] ?? '',
                 $resultado['idAluno'] ?? null,
                 $resultado['idProfessor'] ?? null
             );
@@ -282,7 +286,7 @@ class Estagio{
             $row['obrigatorio'] ?? 0,
             $row['nomeSupervisor'] ?? '',
             $row['emailSupervisor'] ?? '',
-            $profNome,
+            $row['professor'] ?? '',
             $row['idAluno'] ?? null,
             $row['idProfessor'] ?? null
         );
@@ -296,6 +300,15 @@ class Estagio{
         if(!$this->idEstagio){
             return false;
         }
+
+        if ($this->idAluno) {
+            $conexao = new MySQL();
+            $sqlAluno = "SELECT nome FROM usuario WHERE idUsuario = {$this->idAluno}";
+            $resultadoAluno = $conexao->consulta($sqlAluno);
+            if (count($resultadoAluno) === 1) {
+                $this->name = $resultadoAluno[0]['nome'];
+            }
+        }
         $conexao = new MySQL();
         $sql = "UPDATE estagio SET 
             nome = '{$this->name}',
@@ -308,7 +321,8 @@ class Estagio{
             nomeSupervisor = '{$this->nameSupervisor}',
             emailSupervisor = '{$this->emailSupervisor}',
             idAluno = '{$this->idAluno}',
-            idProfessor = '{$this->idProfessor}'
+            idProfessor = '{$this->idProfessor}',
+            professor = '{$this->professor}'
             WHERE idEstagio = {$this->idEstagio}"
         ;
         echo '<pre>' . $sql . '</pre>';  // DEBUG: mostra o SQL

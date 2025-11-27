@@ -1,3 +1,33 @@
+<?php
+
+session_start();
+require_once __DIR__ . "/classes/Usuario.php";
+require_once __DIR__ . "/classes/Estagio.php";
+require_once __DIR__ . "/classes/Documento.php";
+
+$estagio = null;
+if(isset($_GET['idEstagio'])){
+     $idEstagio = intval($_GET['idEstagio']);
+     $estagio = Estagio::find($idEstagio);
+     $documentos = Documento::findAll($idEstagio);
+}
+
+// Mapeamentos de texto e classes (compatível com listagemDoc.php)
+$statusText = [
+    0 => 'Em Análise',
+    1 => 'Entregue',
+    2 => 'Concluído',
+    3 => 'Atrasado'
+];
+
+$statusClass = [
+    0 => 'status-pendente',
+    1 => 'status-enviado',
+    2 => 'status-concluido',
+    3 => 'status-atrasado'
+];
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -13,20 +43,23 @@
         }
 
         body {
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #004aad, #007bff);
+            min-height: 100vh;
             color: #333;
             line-height: 1.6;
+
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            border-radius: 10px;
         }
 
         header {
-            background-color: #0080ff;
-            color: white;
+            background-color: #fff;
+            color: #333;
             padding: 10px 0;
             margin-bottom: 20px;
         }
@@ -38,6 +71,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+            
         }
 
         .header-content h1 {
@@ -62,7 +96,7 @@
 
         .page-title {
             margin: 20px 0;
-            color: #333;
+            color: #fff;
             font-size: 2rem;
             text-align: center;
         }
@@ -72,6 +106,7 @@
             padding: 20px;
             margin-bottom: 25px;
             border: 1px solid #ddd;
+            
         }
 
         .estagio-info h2 {
@@ -85,6 +120,7 @@
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 15px;
             margin-top: 15px;
+            
         }
 
         .detail-item {
@@ -124,6 +160,7 @@
         .documents-container {
             background-color: white;
             border: 1px solid #ddd;
+            border-radius: 10px;
         }
 
         .documents-header {
@@ -134,6 +171,7 @@
             padding: 10px 6px;
             font-weight: 600;
             border-bottom: 1px solid #ddd;
+            border-radius: 10px;
         }
 
         .document-item {
@@ -142,6 +180,7 @@
             padding: 10px 6px;
             border-bottom: 1px solid #ddd;
             align-items: center;
+            
         }
 
         .document-item:last-child {
@@ -181,6 +220,11 @@
             color: #721c24;
         }
 
+        .status-nao-enviado {
+            background-color: #f0f0f0; /* cinza claro */
+            color: #6c757d;
+        }
+
         .document-actions {
             display: flex;
             gap: 8px;
@@ -199,6 +243,14 @@
 
         .btn-upload {
             color: #007bff;
+        }
+
+        .btn-remove {
+            color: #dc3545;
+        }
+
+        .btn-remove:hover {
+            text-decoration: underline;
         }
 
         .empty-state {
@@ -241,113 +293,15 @@
         <div class="header-content">
             <h1>Lista de Documentos</h1>
             <div class="user-info">
-                <span>Bem-vindo, ao AAGIS!</span>
+            <a href="perguntas.php" style="color: #007bff; text-decoration: none; font-weight: 600;">Perguntas Frequentes</a>
+                Bem-vindo, <?= $_SESSION['tipo'] ?> <?= $_SESSION['nome'] ?>, ao AAGIS!
                 <a href="logout.php" class="btn-logout">Sair</a>
             </div>
         </div>
     </header>
 
     <div class="container">
-        <h1 class="page-title">Listagem de Documentos</h1>
-        
-        <?php
-        // Simulação de dados - em um sistema real, esses dados viriam do banco
-        $idEstagio = $_GET['idEstagio'] ?? 0;
-        
-        // Informações do estágio
-        $estagio = [
-            'aluno' => 'Mathias Scherer',
-            'empresa' => 'SAP',
-            'setor' => 'Developer',
-            'periodo' => '01/11/2025 - 15/11/2025',
-            'supervisor' => 'Sergio Robertos',
-            'status' => 'Ativo'
-        ];
-        
-        // Documentos do estágio
-        $documentos = [
-            [
-                'id' => 1,
-                'nome' => 'Autorização de Uso de Imagens',
-                'status' => 0, // 0 = Pendente, 1 = Enviado, 2 = Concluído, 3 = Atrasado
-                'dataEnvio' => null,
-                'prazo' => null,
-                'arquivo' => null
-            ],
-            [
-                'id' => 2,
-                'nome' => 'Plano de Atividades',
-                'status' => 0,
-                'dataEnvio' => '',
-                'prazo' => '',
-                'arquivo' => ''
-            ],
-            [
-                'id' => 3,
-                'nome' => 'Relatório Parcial',
-                'status' => 3,
-                'dataEnvio' => null,
-                'prazo' => '',
-                'arquivo' => null
-            ],
-            [
-                'id' => 4,
-                'nome' => 'Relatório Final',
-                'status' => 0,
-                'dataEnvio' => null,
-                'prazo' => '',
-                'arquivo' => null
-            ]
-        ];
-        
-        // Mapeamento de status para texto
-        $statusText = [
-            0 => 'Pendente',
-            1 => 'Enviado',
-            2 => 'Concluído',
-            3 => 'Atrasado'
-        ];
-        
-        // Mapeamento de status para classes CSS
-        $statusClass = [
-            0 => 'status-pendente',
-            1 => 'status-enviado',
-            2 => 'status-concluido',
-            3 => 'status-atrasado'
-        ];
-        ?>
-        
-        <div class="estagio-info">
-            <h2>Informações do Estágio</h2>
-            <div class="estagio-details">
-                <div class="detail-item">
-                    <span class="detail-label">Aluno</span>
-                    <span class="detail-value"><?php echo $estagio['aluno']; ?></span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Empresa</span>
-                    <span class="detail-value"><?php echo $estagio['empresa']; ?></span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Setor</span>
-                    <span class="detail-value"><?php echo $estagio['setor']; ?></span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Período</span>
-                    <span class="detail-value"><?php echo $estagio['periodo']; ?></span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Status</span>
-                    <span class="detail-value"><?php echo $estagio['status']; ?></span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="actions-bar">
-            <a href="listagem.php" class="btn-secondary">
-                ← Voltar para Listagem de Estágios
-            </a>
-        </div>
+        <h1 class="page-title">Listagem de Documentos (<?php echo $estagio->getName() ?> - <?php echo $estagio->getEmpresa() ?>)</h1>
         
         <div class="documents-container">
             <div class="documents-header">
@@ -362,31 +316,91 @@
                 <div class="empty-state">
                     <div class="empty-state-icon">📄</div>
                     <h3>Nenhum documento encontrado</h3>
-                    <p>Comece anexando seu primeiro documento.</p>
                 </div>
             <?php else: ?>
                 <?php foreach ($documentos as $doc): ?>
                     <div class="document-item">
-                        <div class="document-name"><?php echo $doc['nome']; ?></div>
+                        <div class="document-name"><?php echo $doc->getNome() ?></div>
                         <div>
-                            <span class="status-badge <?php echo $statusClass[$doc['status']]; ?>">
-                                <?php echo $statusText[$doc['status']]; ?>
-                            </span>
+                            <?php
+                                // Determinar status desejado conforme regras dinâmicas e persistir quando necessário
+                                $arquivo = $doc->getArquivo();
+                                $prazo = $doc->getPrazo();
+                                $dataEnvio = $doc->getDataEnvio();
+
+                                // iniciar com o status atual
+                                $desiredStatus = intval($doc->getStatus());
+
+                                if (empty($arquivo)) {
+                                    // sem arquivo: se prazo passou, mostrar Atrasado
+                                    if (!empty($prazo) && strtotime($prazo) < time()) {
+                                        $desiredStatus = Documento::STATUS_ATRASADO;
+                                        echo '<span class="status-badge status-atrasado">Atrasado</span>';
+                                    } else {
+                                        $desiredStatus = Documento::STATUS_PENDENTE;
+                                        echo '<span class="status-badge status-nao-enviado">Não Enviado</span>';
+                                    }
+                                    // persistir se necessário
+                                    if ($desiredStatus !== intval($doc->getStatus())) {
+                                        Documento::atualizarStatus($doc->getIdDocumento(), $desiredStatus);
+                                        $doc->setStatus($desiredStatus);
+                                    }
+                                } else {
+                                    // existe arquivo -> avaliar prazo
+                                    if (!empty($prazo)) {
+                                        $prazoTs = strtotime($prazo);
+                                        $nowTs = time();
+                                        // se já existe data de envio, considerar Entregue independentemente do prazo
+                                        if (!empty($dataEnvio)) {
+                                            $desiredStatus = Documento::STATUS_ENVIADO;
+                                        } else {
+                                            if ($prazoTs < $nowTs) {
+                                                // prazo passou e sem data de envio -> Atrasado
+                                                $desiredStatus = Documento::STATUS_ATRASADO;
+                                            } else {
+                                                $desiredStatus = Documento::STATUS_ENVIADO; // prazo futuro
+                                            }
+                                        }
+                                    } else {
+                                        // sem prazo cadastrado
+                                        if (intval($doc->getStatus()) === Documento::STATUS_CONCLUIDO) {
+                                            $desiredStatus = Documento::STATUS_CONCLUIDO;
+                                        } else {
+                                            $desiredStatus = Documento::STATUS_ENVIADO;
+                                        }
+                                    }
+
+                                    // persistir se necessário
+                                    if ($desiredStatus !== intval($doc->getStatus())) {
+                                        Documento::atualizarStatus($doc->getIdDocumento(), $desiredStatus);
+                                        $doc->setStatus($desiredStatus);
+                                    }
+
+                                    // exibir badge baseado no status atualizado
+                                    $cls = $statusClass[$desiredStatus] ?? 'status-pendente';
+                                    $txt = $statusText[$desiredStatus] ?? 'Desconhecido';
+                                    echo '<span class="status-badge ' . $cls . '">' . $txt . '</span>';
+                                }
+                            ?>
                         </div>
-                        <div><?php echo $doc['dataEnvio'] ? date('d/m/Y', strtotime($doc['dataEnvio'])) : '--'; ?></div>
-                        <div><?php echo $doc['prazo'] ? date('d/m/Y', strtotime($doc['prazo'])) : '--'; ?></div>
+                        <div><?php echo ($doc->getArquivo() && $doc->getDataEnvio()) ? date('d/m/Y', strtotime($doc->getDataEnvio())) : '--'; ?></div>
+                        <div><?php echo $doc->getPrazo() ? date('d/m/Y', strtotime($doc->getPrazo())) : '--'; ?></div>
                         <div class="document-actions">
-                            <?php if ($doc['arquivo']): ?>
-                                <a href="uploads/<?php echo $doc['arquivo']; ?>" target="_blank" class="btn-action btn-view">Visualizar</a>
+                            <?php if ($doc->getArquivo()): ?>
+                                <a href="uploads/<?php echo $doc->getArquivo(); ?>" target="_blank" class="btn-action btn-view">Visualizar</a>
+                                <a href="removerEnvioDoc.php?idDocumento=<?php echo $doc->getIdDocumento(); ?>&idEstagio=<?php echo $idEstagio; ?>" class="btn-action btn-remove" onclick="return confirm('Tem certeza que deseja remover o envio deste documento?')">Remover Envio</a>
                             <?php endif; ?>
-                            
-                            <?php if ($doc['status'] == 0 || $doc['status'] == 3): ?>
-                                <a href="anexarDoc.php?idEstagio=<?php echo $idEstagio; ?>&idDocumento=<?php echo $doc['id']; ?>" class="btn-action btn-upload">Anexar Documento</a>
-                            <?php endif; ?>
+                                <a href="AnexarDoc.php?idEstagio=<?php echo $idEstagio; ?>&idDocumento=<?php echo $doc->getIdDocumento(); ?>" class="btn-action btn-upload">Anexar Documento</a>
                         </div>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
+        </div>
+        <br>
+        <div class="actions-bar">
+            <a href="listagem.php" class="btn-secondary">
+                Voltar para Listagem de Estágios
+            </a>
         </div>
     </div>
 </body>

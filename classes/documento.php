@@ -1,8 +1,7 @@
 <?php
-require_once _DIR_ . "/../bd/MySQL.php";
+require_once __DIR__ . "/../bd/MySQL.php";
 
 class Documento {
-
     private $idDocumento;
     private $idEstagio;
     private $nome;
@@ -10,21 +9,24 @@ class Documento {
     private $status;
     private $dataEnvio;
     private $prazo;
+    private $notificacao;
 
     const STATUS_PENDENTE = 0;
     const STATUS_ENVIADO = 1;
     const STATUS_CONCLUIDO = 2;
     const STATUS_ATRASADO = 3;
+
     public function __construct($idEstagio = null, $nome = '', $arquivo = '',
-        $status = self::STATUS_PENDENTE, $prazo = null
-    ) 
+        $status = self::STATUS_PENDENTE, $prazo = null, $notificacao = null) 
     {
         $this->idEstagio = $idEstagio;
         $this->nome = $nome;
         $this->arquivo = $arquivo;
         $this->status = $status;
         $this->prazo = $prazo;
+        $this->notificacao = $notificacao;
     }
+
     public function getIdDocumento() { return $this->idDocumento; }
     public function setIdDocumento($idDocumento): void { $this->idDocumento = $idDocumento; }
     public function getIdEstagio() { return $this->idEstagio; }
@@ -39,24 +41,32 @@ class Documento {
     public function setDataEnvio($dataEnvio): void { $this->dataEnvio = $dataEnvio; }
     public function getPrazo() { return $this->prazo; }
     public function setPrazo($prazo): void { $this->prazo = $prazo; }
+    public function setNotificacao($notificacao): void { $this->notificacao = $notificacao; }
+    public function getNotificacao() {return $this->notificacao; }
+
     public function save(): bool {
         $conexao = new MySQL();
         $conn = $conexao->getConnection();
+        
         $stmt = $conn->prepare("
             INSERT INTO documento (
-                idEstagio, nome, arquivo, status, dataEnvio, prazo
-            ) VALUES (?, ?, ?, ?, ?, NOW(), ?)
+                idEstagio, nome, arquivo, status, dataEnvio, prazo, notificacao
+            ) VALUES (?, ?, ?, ?, NOW(), ?, ?)
         ");
 
         if (!$stmt) {
             error_log("Erro ao preparar statement: " . $conn->error);
             return false;
         }
+        
         $idEstagio = $this->idEstagio;
         $nome = $this->nome;
         $arquivo = $this->arquivo;
         $status = $this->status;
         $prazo = $this->prazo;
+        $notificacao = $this->notificacao;
+        
+        // CORREÇÃO: 6 parâmetros agora
         $stmt->bind_param("isssss", $idEstagio, $nome, $arquivo, $status, $prazo);
         $result = $stmt->execute();
         if ($result) {
@@ -66,6 +76,7 @@ class Documento {
         $stmt->close();
         return $result;
     }
+
     public function update(): bool {
         if (!$this->idDocumento) {
             return false;
@@ -76,11 +87,13 @@ class Documento {
                 nome = '{$this->nome}',
                 arquivo = '{$this->arquivo}',
                 status = '{$this->status}',
-                prazo = '{$this->prazo}'
+                prazo = '{$this->prazo}',
+                notificacao = '{$this->notificacao}'
             WHERE idDocumento = {$this->idDocumento}
         ";
         return $conexao->executa($sql);
     }
+
     public static function find($idDocumento): ?Documento {
         $conexao = new MySQL();
         $sql = "SELECT * FROM documento WHERE idDocumento = {$idDocumento} LIMIT 1";
@@ -94,13 +107,15 @@ class Documento {
             $row['nome'] ?? '',
             $row['arquivo'] ?? '',
             $row['status'] ?? self::STATUS_PENDENTE,
-            $row['prazo'] ?? null
+            $row['prazo'] ?? null,
+            $row['notificacao'] ?? null
         );
         $d->setIdDocumento($row['idDocumento']);
         $d->setDataEnvio($row['dataEnvio'] ?? null);
 
         return $d;
     }
+
     public static function findAll($idEstagio): array {
         $conexao = new MySQL();
         $sql = "SELECT * FROM documento WHERE idEstagio = {$idEstagio} ORDER BY prazo ASC";
@@ -112,7 +127,8 @@ class Documento {
                 $row['nome'] ?? '',
                 $row['arquivo'] ?? '',
                 $row['status'] ?? self::STATUS_PENDENTE,
-                $row['prazo'] ?? null
+                $row['prazo'] ?? null,
+                $row['notificacao'] ?? null
             );
             $d->setIdDocumento($row['idDocumento']);
             $d->setDataEnvio($row['dataEnvio'] ?? null);
@@ -121,11 +137,13 @@ class Documento {
 
         return $documentos;
     }
+
     public static function atualizarStatus($idDocumento, $novoStatus): bool {
         $conexao = new MySQL();
         $sql = "UPDATE documento SET status = '{$novoStatus}' WHERE idDocumento = {$idDocumento}";
         return $conexao->executa($sql);
     }
+
     public static function delete($idDocumento): bool {
         $conexao = new MySQL();
         $sql = "DELETE FROM documento WHERE idDocumento = {$idDocumento}";

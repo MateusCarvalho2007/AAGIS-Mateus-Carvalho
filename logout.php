@@ -13,5 +13,5 @@ if (isset($_COOKIE[session_name()])) {
 session_destroy();
 
 // Redireciona para a página de login
-header("Location: index.php");
+header("Location: https://billyorg.com/2025/projeto/grupo3/views/TelaInicial/");
 exit;

@@ -11,28 +11,35 @@ $estagio = null;
 $mensagemSucesso = null;
 $mensagemErro = null;
 
-// Tratar POST para atualizar status
+// Tratar POST para atualizar status (somente professores podem alterar)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idEstagio'])) {
-    $idEstagio = intval($_POST['idEstagio']);
-    $novoStatus = isset($_POST['status']) ? intval($_POST['status']) : null;
-    
-    if ($novoStatus !== null) {
-        // Validar status
-        $statusesValidos = [
-            Estagio::STATUS_FINALIZADO,
-            Estagio::STATUS_ATIVO,
-            Estagio::STATUS_CONCLUIDO
-        ];
+    // Verifica tipo do usuário na sessão
+    $usuarioTipo = $_SESSION['tipo'] ?? null;
+    if ($usuarioTipo !== 'professor') {
+        // Bloqueia ação para usuários que não são professores
+        $mensagemErro = 'Acesso negado! Apenas professores podem alterar o status!';
+    } else {
+        $idEstagio = intval($_POST['idEstagio']);
+        $novoStatus = isset($_POST['status']) ? intval($_POST['status']) : null;
         
-        if (in_array($novoStatus, $statusesValidos, true)) {
-            $ok = Estagio::updateStatus($idEstagio, $novoStatus);
-            if ($ok) {
-                $mensagemSucesso = 'Status atualizado com sucesso!';
+        if ($novoStatus !== null) {
+            // Validar status
+            $statusesValidos = [
+                Estagio::STATUS_FINALIZADO,
+                Estagio::STATUS_ATIVO,
+                Estagio::STATUS_CONCLUIDO
+            ];
+            
+            if (in_array($novoStatus, $statusesValidos, true)) {
+                $ok = Estagio::updateStatus($idEstagio, $novoStatus);
+                if ($ok) {
+                    $mensagemSucesso = 'Status atualizado com sucesso!';
+                } else {
+                    $mensagemErro = 'Erro ao atualizar o status!';
+                }
             } else {
-                $mensagemErro = 'Erro ao atualizar o status.';
+                $mensagemErro = 'Status inválido.';
             }
-        } else {
-            $mensagemErro = 'Status inválido.';
         }
     }
 }
@@ -64,13 +71,13 @@ try {
         
         <!-- Exibir mensagens de sucesso ou erro -->
         <?php if (!empty($mensagemSucesso)): ?>
-            <div style="color: green; font-weight: bold; margin-bottom: 15px;">
+            <div class="mensagem-sucesso">
                 <?php echo htmlspecialchars($mensagemSucesso); ?>
             </div>
         <?php endif; ?>
         
         <?php if (!empty($mensagemErro)): ?>
-            <div style="color: red; font-weight: bold; margin-bottom: 15px;">
+            <div class="mensagem-erro">
                 <?php echo htmlspecialchars($mensagemErro); ?>
             </div>
         <?php endif; ?>
@@ -82,7 +89,7 @@ try {
             <h2>Setor: <h3><?php echo htmlspecialchars($estagio->getSetorEmpresa()); ?></h3></h2>
             <h2>Supervisor: <h3><?php echo htmlspecialchars($estagio->getNameSupervisor()); ?></h3></h2>
             <h2>Email Supervisor: <h3><?php echo htmlspecialchars($estagio->getEmailSupervisor()); ?></h3></h2>
-            <h2>Período: <h3> <?php echo htmlspecialchars($estagio->getDataInicio()); ?> a <?php echo htmlspecialchars($estagio->getDataFim()); ?></h3></h2>
+                <h2>Período: <h3> <?php echo str_replace('-', '/', htmlspecialchars($estagio->getDataInicio())); ?> a <?php echo str_replace('-', '/', htmlspecialchars($estagio->getDataFim())); ?></h3></h2>
             <h2>Tipo de Estágio: <h3> <?php echo ($estagio->isObrigatorio() ? 'Obrigatório' : 'Não Obrigatório'); ?></h3></h2>
             <h2>Vínculo Trabalhista: <h3><?php echo ($estagio->isVinculoTrabalhista() ? 'Carteira Assinada' : 'Sem Carteira'); ?></h3></h2>
             
@@ -102,18 +109,16 @@ try {
                 ?>
             </h2>
             
-            <div class>
+            <?php if (isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'professor'): ?>
+            <div class="form-actions">
                 <!-- Formulário para alterar status -->
-                <form action="visualizacao.php" method="post" style="margin-bottom: 20px;">
+                <form action="visualizacao.php" method="post">
                     <input type="hidden" name="idEstagio" value="<?php echo $estagio->getIdEstagio(); ?>">
                     
                     <label for="status"><strong>Alterar Status:</strong></label>
                     <select name="status" id="status" required>
                         <option value="<?php echo Estagio::STATUS_ATIVO; ?>" <?php echo ($status == Estagio::STATUS_ATIVO) ? 'selected' : ''; ?>>
                             Ativo
-                        </option>
-                        <option value="<?php echo Estagio::STATUS_CONCLUIDO; ?>" <?php echo ($status == Estagio::STATUS_CONCLUIDO) ? 'selected' : ''; ?>>
-                            Concluído
                         </option>
                         <option value="<?php echo Estagio::STATUS_FINALIZADO; ?>" <?php echo ($status == Estagio::STATUS_FINALIZADO) ? 'selected' : ''; ?>>
                             Finalizado
@@ -124,16 +129,19 @@ try {
                 
                 <!-- Botão rápido para Marcar como Concluído -->
                 <?php if ($status != Estagio::STATUS_CONCLUIDO && $status != Estagio::STATUS_FINALIZADO): ?>
-                    <form action="visualizacao.php" method="post" style="display: inline;" onsubmit="return confirm('Marcar este estágio como Concluído?');">
+                    <form action="visualizacao.php" method="post" onsubmit="return confirm('Marcar este estágio como Concluído?');">
                         <input type="hidden" name="idEstagio" value="<?php echo $estagio->getIdEstagio(); ?>">
                         <input type="hidden" name="status" value="<?php echo Estagio::STATUS_CONCLUIDO; ?>">
-                        <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">
-                            Marcar como Concluído ✓
+                        <button type="submit" class="btn-concluir">
+                            Marcar como Concluído
                         </button>
                     </form>
                 <?php endif; ?>
             </div>
-
+            <?php else: ?>
+                <!-- Usuário não é professor: área de alteração de status oculta -->
+            <?php endif; ?>
+            <br>
             <div class="alinhaA">
                 <a href="listagem.php">Voltar para Listagem</a>
             </div>

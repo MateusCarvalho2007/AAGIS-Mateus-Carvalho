@@ -82,6 +82,23 @@ class Usuario{
         return null;
 
     }
+
+    public static function acharUsuarioPeloNome(string $nome) : ?Usuario{
+    $conn = new MySQL();
+    $sql = "SELECT idUsuario, nome, email, imagem, senha FROM usuario WHERE nome='{$nome}'"; // CORREÇÃO: adicionar 'nome'
+    $resultado = $conn->consulta($sql);
+    if(count($resultado) === 1){
+        $u = new Usuario(
+            $resultado[0]['nome'], 
+            $resultado[0]['imagem'], 
+            $resultado[0]['email'], // CORREÇÃO: usar email do resultado
+            $resultado[0]['senha']
+        );
+        $u->setIdUsuario($resultado[0]['idUsuario']);
+        return $u;
+    }
+    return null;
+}
     
     public static function acharUsuario(int $idUsuario) : ?Usuario{
         $conn = new MySQL();
