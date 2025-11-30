@@ -298,6 +298,7 @@ $statusClass = [
             }
         }
     </style>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
     <header>
@@ -354,8 +355,13 @@ $statusClass = [
                                     // persistir se necessário
                                     if ($desiredStatus !== intval($doc->getStatus())) {
                                         Documento::atualizarStatus($doc->getIdDocumento(), $desiredStatus);
+                                        // Se foi marcado como Atrasado e não existe arquivo, garantir que dataEnvio fique nula
+                                        if ($desiredStatus === Documento::STATUS_ATRASADO && empty($arquivo)) {
+                                            $doc->setDataEnvio(null);
+                                            $doc->update();
+                                        }
                                         $doc->setStatus($desiredStatus);
-                                    }
+                                    } 
                                 } else {
                                     // existe arquivo -> avaliar prazo
                                     if (!empty($prazo)) {
@@ -397,14 +403,11 @@ $statusClass = [
                         <div style="<?php
                             $dataEnvio = $doc->getDataEnvio();
                             $prazo = $doc->getPrazo();
-                            
-                            if ($dataEnvio && $prazo) {
-                                $dataEnvioo = strtotime($dataEnvio);
-                                $prazoo = strtotime($prazo);
+                            $dataEnvioo = strtotime($dataEnvio);
+                            $prazoo = strtotime($prazo);
                                 
-                                if ($dataEnvioo > $prazoo) {
-                                    echo 'color: red; font-weight: bold;';
-                                }
+                            if ($dataEnvioo > $prazoo && $doc->getNome() != "Autorização de Uso de Imagens") {
+                                echo 'color: red; font-weight: bold;';
                             }
                         ?>">
                             <?php echo ($dataEnvio) ? date('d/m/Y', strtotime($dataEnvio)) : '--'; ?>
@@ -414,12 +417,32 @@ $statusClass = [
                             <?php if ($doc->getArquivo()): ?>
                                 <a href="uploads/<?php echo $doc->getArquivo(); ?>" target="_blank" class="btn-action btn-view">Visualizar</a>
                                 <a href="removerEnvioDoc.php?idDocumento=<?php echo $doc->getIdDocumento(); ?>&idEstagio=<?php echo $idEstagio; ?>" class="btn-action btn-remove" onclick="return confirm('Tem certeza que deseja remover o envio deste documento?')">Remover Envio</a>
-                            <?php endif; ?>
+                                <a href="AnexarDoc.php?idEstagio=<?php echo $idEstagio; ?>&idDocumento=<?php echo $doc->getIdDocumento(); ?>" class="btn-action btn-upload">Editar Envio</a>
+                            <?php else: ?>
                                 <a href="AnexarDoc.php?idEstagio=<?php echo $idEstagio; ?>&idDocumento=<?php echo $doc->getIdDocumento(); ?>" class="btn-action btn-upload">Anexar Documento</a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
+        </div>
+        <!-- Barra de Progresso de Documentos Anexados -->
+        <?php
+        $totalDocs = count($documentos);
+        $anexados = 0;
+        foreach ($documentos as $doc) {
+            if ($doc->getArquivo()) {
+                $anexados++;
+            }
+        }
+        $percent = $totalDocs > 0 ? round(($anexados / $totalDocs) * 100) : 0;
+        ?>
+        <div style="margin: 30px 0 10px 0;">
+            <label style="font-weight: bold; color: #fff;">Progresso de Envios:</label>
+            <div style="width: 100%; background: #eee; border-radius: 8px; height: 32px; position: relative; border: 3px solid #fff; box-sizing: border-box;">
+                <div style="width: <?php echo $percent; ?>%; background: #007bff; height: 100%; border-radius: 8px; transition: width 0.5s;"></div>
+                <span style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-weight: bold; color: #333; font-size: 14px;"><?php echo $percent; ?>%</span>
+            </div>
         </div>
         <br>
         <div class="actions-bar">

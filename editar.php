@@ -31,6 +31,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save']) && isset($_POS
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+     <link rel="icon" href="favicon.ico" type="image/x-icon">
      <meta charset="UTF-8">
      <title>Editar Estágio</title>
      <link rel="stylesheet" href="styles/cadastro.css">

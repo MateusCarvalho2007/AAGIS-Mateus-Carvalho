@@ -42,6 +42,7 @@ $documento->setArquivo(null);
 $documento->setDataEnvio(null);
 $documento->setStatus($novoStatus);
 
+
 if ($documento->update()) {
     header("Location: listagemDoc.php?idEstagio=" . $idEstagio);
     exit;

@@ -152,9 +152,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['acao'])) {
                             $doc->setArquivo($newName);
                             $doc->setStatus(Documento::STATUS_ENVIADO);
                             $doc->setDataEnvio(date('Y-m-d H:i:s'));
-                            $documento = Documento::find($documento->getIdDocumento());
-                            $dataEnvio = $documento->getDataEnvio();
                             if ($doc->update()) {
+                                // Recarregar o objeto atualizado para exibir o status correto
+                                $documento = Documento::find($doc->getIdDocumento());
                                 $message = 'Arquivo enviado e registrado com sucesso.';
                             } else {
                                 $error = 'Arquivo salvo, mas erro ao atualizar o banco.';
@@ -215,7 +215,12 @@ if (isset($documento) && $documento) {
     // calcular desiredStatus: se já houver data de envio, considerar Entregue
     $desiredStatus = $currentStatus;
     if (empty($arquivo)) {
-        $desiredStatus = Documento::STATUS_PENDENTE; // Não Enviado
+        // sem arquivo: se prazo passou, marcar como Atrasado; caso contrário Pendente (Não Enviado)
+        if (!empty($prazo) && strtotime($prazo) < time()) {
+            $desiredStatus = Documento::STATUS_ATRASADO;
+        } else {
+            $desiredStatus = Documento::STATUS_PENDENTE; // Não Enviado
+        }
     } else {
         // se já existe data de envio, mostrar como Entregue independentemente do prazo
         if (!empty($dataEnvio)) {
@@ -245,16 +250,26 @@ if (isset($documento) && $documento) {
     if (isset($documento) && $documento && intval($documento->getIdDocumento()) > 0) {
         if ($desiredStatus !== $currentStatus) {
             Documento::atualizarStatus($documento->getIdDocumento(), $desiredStatus);
+            // Se marcar como Atrasado e não houver arquivo, garantir que dataEnvio seja nula
+            if ($desiredStatus === Documento::STATUS_ATRASADO && empty($documento->getArquivo())) {
+                $documento->setDataEnvio(null);
+                $documento->update();
+            }
             $documento->setStatus($desiredStatus);
             // atualizar currentStatus para o restante da exibição
             $currentStatus = $desiredStatus;
         }
     }
 
-    // definir textos/classes para exibição
+    // definir textos/classes para exibição (alinhar com listagemDoc.php)
     if (empty($arquivo)) {
-        $displayStatusText = 'Não Enviado';
-        $displayStatusClass = 'status-nao-enviado';
+        if ($desiredStatus === Documento::STATUS_ATRASADO) {
+            $displayStatusText = 'Atrasado';
+            $displayStatusClass = 'status-atrasado';
+        } else {
+            $displayStatusText = 'Não Enviado';
+            $displayStatusClass = 'status-nao-enviado';
+        }
     } else {
         $displayStatusText = $statusText[$desiredStatus] ?? 'Desconhecido';
         $displayStatusClass = $statusClass[$desiredStatus] ?? '';
@@ -291,6 +306,7 @@ if (isset($documento) && $documento) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Anexar Documento - AAGIS</title>
     <link rel="stylesheet" href="styles/cadastro.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
         /* Estilos específicos para a página de anexar documento */
         .file-upload-container {

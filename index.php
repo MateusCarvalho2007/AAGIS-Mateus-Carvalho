@@ -28,6 +28,7 @@ if (isset($_POST['login'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistema de Estágios</title>
     <link rel="stylesheet" href="styles/login.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
     <h1>Login</h1>

@@ -7,7 +7,7 @@ class Documento {
     private $nome;
     private $arquivo;
     private $status;
-    private $dataEnvio;
+    private $dataEnvio = null;
     private $prazo;
     private $notificacao;
 
@@ -17,15 +17,16 @@ class Documento {
     const STATUS_ATRASADO = 3;
 
     public function __construct($idEstagio = null, $nome = '', $arquivo = '',
-        $status = self::STATUS_PENDENTE, $prazo = null, $notificacao = null) 
-    {
-        $this->idEstagio = $idEstagio;
-        $this->nome = $nome;
-        $this->arquivo = $arquivo;
-        $this->status = $status;
-        $this->prazo = $prazo;
-        $this->notificacao = $notificacao;
-    }
+    $status = self::STATUS_PENDENTE, $prazo = null, $notificacao = null, $dataEnvio = null) 
+{
+    $this->idEstagio = $idEstagio;
+    $this->nome = $nome;
+    $this->arquivo = $arquivo;
+    $this->status = $status;
+    $this->dataEnvio = $dataEnvio; 
+    $this->prazo = $prazo;
+    $this->notificacao = $notificacao;
+}
 
     public function getIdDocumento() { return $this->idDocumento; }
     public function setIdDocumento($idDocumento): void { $this->idDocumento = $idDocumento; }
@@ -51,7 +52,7 @@ class Documento {
         $stmt = $conn->prepare("
             INSERT INTO documento (
                 idEstagio, nome, arquivo, status, dataEnvio, prazo, notificacao
-            ) VALUES (?, ?, ?, ?, NOW(), ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
@@ -63,11 +64,12 @@ class Documento {
         $nome = $this->nome;
         $arquivo = $this->arquivo;
         $status = $this->status;
+        $dataEnvio = $this->dataEnvio; // usar o valor de dataEnvio ao invés de NOW()
         $prazo = $this->prazo;
         $notificacao = $this->notificacao;
         
-        // CORREÇÃO: 6 parâmetros agora
-        $stmt->bind_param("isssss", $idEstagio, $nome, $arquivo, $status, $prazo);
+        // 7 parâmetros: i=int, s=string
+        $stmt->bind_param("issssss", $idEstagio, $nome, $arquivo, $status, $dataEnvio, $prazo, $notificacao);
         $result = $stmt->execute();
         if ($result) {
             $this->idDocumento = $conn->insert_id;
@@ -78,21 +80,29 @@ class Documento {
     }
 
     public function update(): bool {
-        if (!$this->idDocumento) {
-            return false;
-        }
-        $conexao = new MySQL();
-        $sql = "
-            UPDATE documento SET 
-                nome = '{$this->nome}',
-                arquivo = '{$this->arquivo}',
-                status = '{$this->status}',
-                prazo = '{$this->prazo}',
-                notificacao = '{$this->notificacao}'
-            WHERE idDocumento = {$this->idDocumento}
-        ";
-        return $conexao->executa($sql);
+    if (!$this->idDocumento) {
+        return false;
     }
+    $conexao = new MySQL();
+    
+    $arquivo = $this->arquivo === null ? 'NULL' : "'{$this->arquivo}'";
+    $dataEnvio = $this->dataEnvio === null ? 'NULL' : "'{$this->dataEnvio}'";
+    $prazo = $this->prazo === null ? 'NULL' : "'{$this->prazo}'";
+    $notificacao = $this->notificacao === null ? 'NULL' : "'{$this->notificacao}'";
+    
+    $sql = "
+        UPDATE documento SET 
+            nome = '{$this->nome}',
+            arquivo = {$arquivo},
+            status = '{$this->status}',
+            dataEnvio = {$dataEnvio},
+            prazo = {$prazo},
+            notificacao = {$notificacao}
+        WHERE idDocumento = {$this->idDocumento}
+    ";
+    
+    return $conexao->executa($sql);
+}
 
     public static function find($idDocumento): ?Documento {
         $conexao = new MySQL();
@@ -108,10 +118,10 @@ class Documento {
             $row['arquivo'] ?? '',
             $row['status'] ?? self::STATUS_PENDENTE,
             $row['prazo'] ?? null,
-            $row['notificacao'] ?? null
+            $row['notificacao'] ?? null,
+            $row['dataEnvio'] ?? null 
         );
         $d->setIdDocumento($row['idDocumento']);
-        $d->setDataEnvio($row['dataEnvio'] ?? null);
 
         return $d;
     }

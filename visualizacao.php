@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/classes/Estagio.php';
+require_once __DIR__ . '/bd/MySQL.php';
 session_start();
 
 ini_set('display_errors', 1);
@@ -10,6 +11,8 @@ error_reporting(E_ALL);
 $estagio = null;
 $mensagemSucesso = null;
 $mensagemErro = null;
+$nomeProfessor = null;
+$emailProfessor = null;
 
 // Tratar POST para atualizar status (somente professores podem alterar)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idEstagio'])) {
@@ -54,6 +57,17 @@ try {
     if (!$estagio->getIdEstagio()) {
         die("Erro: Estágio não encontrado com o ID: " . $id);
     }
+    
+    // Buscar nome e email do professor
+    if ($estagio->getIdProfessor()) {
+        $conexao = new MySQL();
+        $sql = "SELECT nome, email FROM usuario WHERE idUsuario = " . intval($estagio->getIdProfessor()) . " LIMIT 1";
+        $resultado = $conexao->consulta($sql);
+        if (!empty($resultado)) {
+            $nomeProfessor = $resultado[0]['nome'] ?? 'Não encontrado';
+            $emailProfessor = $resultado[0]['email'] ?? 'Não encontrado';
+        }
+    }
 } catch (Exception $e) {
     die("Erro ao buscar estágio: " . $e->getMessage());
 }
@@ -61,6 +75,7 @@ try {
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <title>Visualização de Estágios</title>
     <link rel="stylesheet" href="styles/visualizacao.css">
@@ -86,17 +101,18 @@ try {
         <?php $DI = date('d/m/Y', strtotime($estagio->getDataInicio())); ?>
         <?php $DF = date('d/m/Y', strtotime($estagio->getDataFim())); ?>
         <div class="alinha" style="margin-bottom: 20px;">
-            <h2>Estágiario: <h3><?php echo htmlspecialchars($estagio->getName()); ?></h3></h2>
-            <h2>Empresa: <h3><?php echo htmlspecialchars($estagio->getEmpresa()); ?></h3></h2>
-            <h2>Setor: <h3><?php echo htmlspecialchars($estagio->getSetorEmpresa()); ?></h3></h2>
-            <h2>Supervisor: <h3><?php echo htmlspecialchars($estagio->getNameSupervisor()); ?></h3></h2>
-            <h2>Email Supervisor: <h3><?php echo htmlspecialchars($estagio->getEmailSupervisor()); ?></h3></h2>
-            <h2>Período: <h3> <?php echo str_replace('-', '/', htmlspecialchars($DI)); ?> a <?php echo str_replace('-', '/', htmlspecialchars($DF)); ?></h3></h2>
-            <h2>Tipo de Estágio: <h3> <?php echo ($estagio->isObrigatorio() ? 'Obrigatório' : 'Não Obrigatório'); ?></h3></h2>
-            <h2>Vínculo Trabalhista: <h3><?php echo ($estagio->isVinculoTrabalhista() ? 'Carteira Assinada' : 'Sem Carteira'); ?></h3></h2>
-            
+            <p><strong>Estagiário:</strong> <?php echo htmlspecialchars($estagio->getName()); ?></p>
+            <p><strong>Empresa:</strong> <?php echo htmlspecialchars($estagio->getEmpresa()); ?></p>
+            <p><strong>Setor:</strong> <?php echo htmlspecialchars($estagio->getSetorEmpresa()); ?></p>
+            <p><strong>Supervisor:</strong> <?php echo htmlspecialchars($estagio->getNameSupervisor()); ?></p>
+            <p><strong>Email Supervisor:</strong> <?php echo htmlspecialchars($estagio->getEmailSupervisor()); ?></p>
+            <p><strong>Orientador:</strong> <?php echo htmlspecialchars($nomeProfessor); ?></p>
+            <p><strong>Email Orientador:</strong> <?php echo htmlspecialchars($emailProfessor); ?></p>
+            <p><strong>Período:</strong> <?php echo str_replace('-', '/', htmlspecialchars($DI)); ?> a <?php echo str_replace('-', '/', htmlspecialchars($DF)); ?></p>
+            <p><strong>Tipo de Estágio:</strong> <?php echo ($estagio->isObrigatorio() ? 'Obrigatório' : 'Não Obrigatório'); ?></p>
+            <p><strong>Vínculo Trabalhista:</strong> <?php echo ($estagio->isVinculoTrabalhista() ? 'Carteira Assinada' : 'Sem Carteira'); ?></p>
             <!-- Exibição do Status -->
-            <h2>Status do Estágio: 
+            <p><strong>Status do Estágio:</strong> 
                 <?php
                 $status = $estagio->getStatus();
                 if ($status == Estagio::STATUS_FINALIZADO) {
@@ -109,7 +125,7 @@ try {
                     echo '<span class="status-desconhecido">Desconhecido</span>';
                 }
                 ?>
-            </h2>
+            </p>
             
             <?php if (isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'professor'): ?>
             <div class="form-actions">

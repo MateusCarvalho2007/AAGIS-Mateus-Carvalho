@@ -23,6 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $documento->setPrazo($_POST['prazo']);
     $documento->setStatus($_POST['status']);
 
+    $arquivo = $documento->getArquivo();
+    if ($arquivo === null || $arquivo === '' || empty($arquivo)) {
+        $documento->setDataEnvio(null);
+    }
+
     if ($documento->update()) {
         header("Location: listagemDoc.php?idEstagio={$documento->getIdEstagio()}");
         exit;
@@ -32,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <link rel="stylesheet" href="styles/cadastro.css">
     <title>Editar Documento</title>

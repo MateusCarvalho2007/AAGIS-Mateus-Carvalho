@@ -20,6 +20,7 @@ $comentarios = $conn->consulta($sql);
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <title>Visualizar Documento</title>
 </head>

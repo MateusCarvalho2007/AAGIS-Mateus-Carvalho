@@ -28,6 +28,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Listagem de Estágios</title>
         <link rel="stylesheet" href="styles/listagem.css">
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
     </head>
     <body>
         <div style="background-color: #f8f9fa; padding: 10px; margin-bottom: 20px;">

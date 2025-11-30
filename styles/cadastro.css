@@ -26,6 +26,30 @@ h1 {
    Mensagens informativas
 =========================== */
 
+.quest{
+    border-radius: 10px;  
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 900px;   
+    margin-bottom: 10px;
+}
+
+.preto{
+    color: #333;
+    margin: 10px;   
+    text-align: center;
+}
+
+#cont{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; 
+}
+
 .alinhaAviso{
     display: flex;
     flex-direction: column;
@@ -625,7 +649,7 @@ a[href="listagem.php"] {
 
 
 a[href="listagem.php"]:hover {
-    background-color: #5a6268;
+    background-color: #6c757d;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
 }
