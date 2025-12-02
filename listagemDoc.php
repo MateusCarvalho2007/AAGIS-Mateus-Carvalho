@@ -307,7 +307,8 @@ $statusClass = [
             Bem-vindo, <?= $_SESSION['tipo'] ?> <?= $_SESSION['nome'] ?>, ao AAGIS!
             <div class="user-info">
             <a href="perguntas.php" style="color: #007bff; text-decoration: none; font-weight: 600;">Perguntas Frequentes</a>
-                <a href="logout.php" class="btn-logout">Sair</a>
+            <a href="https://billyorg.com/2025/projeto/grupo3/views/TelaInicial/" style="color: #007bff; text-decoration: none; font-weight: 600;">SuperVisor</a>
+            <a href="logout.php" class="btn-logout">Sair</a>
             </div>
         </div>
     </header>

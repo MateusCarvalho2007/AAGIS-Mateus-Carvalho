@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/classes/Estagio.php';
+require_once __DIR__ . '/classes/Usuario.php';
 
 $estagio = null;
 if(isset($_GET['idEstagio'])){
@@ -11,8 +12,15 @@ if(isset($_GET['idEstagio'])){
 // processa atualização
 if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save']) && isset($_POST['idEstagio'])){
      $id = intval($_POST['idEstagio']);
-     $professorNome = $_SESSION['nome'];
      $e = Estagio::find($id);
+
+     $professor = Usuario::acharUsuario($e->getIdProfessor());
+     $professorNome = $professor->getNome();
+
+     $aluno = Usuario::acharUsuario($e->getIdAluno());
+     $alunoNome = $aluno->getNome();
+     
+     $e->setName($alunoNome ?? $e->getName());
      $e->setDataInicio($_POST['dataInicio'] ?? $e->getDataInicio());
      $e->setDataFim($_POST['dataFim'] ?? $e->getDataFim());
      $e->setObrigatorio(isset($_POST['estagioTipo']) ? intval($_POST['estagioTipo']) : $e->isObrigatorio());

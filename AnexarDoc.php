@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 // Verifica se o usuário está logado
 if (!isset($_SESSION['idUsuario'])) {
     header("Location: index.php");
@@ -120,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Processamento do upload do documento - MOVER ANTES DO CALCULO DE STATUS
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['acao'])) {
     if (!isset($_FILES['documento'])) {
         $error = 'Nenhum arquivo foi enviado.';
@@ -153,9 +153,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['acao'])) {
                             $doc->setStatus(Documento::STATUS_ENVIADO);
                             $doc->setDataEnvio(date('Y-m-d H:i:s'));
                             if ($doc->update()) {
-                                // Recarregar o objeto atualizado para exibir o status correto
-                                $documento = Documento::find($doc->getIdDocumento());
                                 $message = 'Arquivo enviado e registrado com sucesso.';
+                                // Atualiza a variável $documento com os dados mais recentes
+                                $documento = Documento::find($idDocumento);
                             } else {
                                 $error = 'Arquivo salvo, mas erro ao atualizar o banco.';
                             }
@@ -172,6 +172,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['acao'])) {
                             $message = 'Arquivo enviado e novo registro criado com sucesso.';
                             // atualiza idDocumento para o novo registro
                             $idDocumento = $novo->getIdDocumento();
+                            // Atualiza a variável $documento com os dados mais recentes
+                            $documento = Documento::find($idDocumento);
                         } else {
                             $error = 'Erro ao salvar registro do documento.';
                         }
@@ -212,36 +214,39 @@ if (isset($documento) && $documento) {
         3 => 'status-atrasado'
     ];
 
-    // calcular desiredStatus: se já houver data de envio, considerar Entregue
+    // Calcular desiredStatus conforme a lógica da listagemDoc.php
     $desiredStatus = $currentStatus;
+    
     if (empty($arquivo)) {
-        // sem arquivo: se prazo passou, marcar como Atrasado; caso contrário Pendente (Não Enviado)
+        // sem arquivo: se prazo passou, mostrar Atrasado
         if (!empty($prazo) && strtotime($prazo) < time()) {
             $desiredStatus = Documento::STATUS_ATRASADO;
         } else {
-            $desiredStatus = Documento::STATUS_PENDENTE; // Não Enviado
+            $desiredStatus = Documento::STATUS_PENDENTE;
         }
     } else {
-        // se já existe data de envio, mostrar como Entregue independentemente do prazo
-        if (!empty($dataEnvio)) {
-            $desiredStatus = Documento::STATUS_ENVIADO;
-        } else {
-            if (!empty($prazo)) {
-                $prazoTs = strtotime($prazo);
-                $nowTs = time();
+        // existe arquivo -> avaliar prazo
+        if (!empty($prazo)) {
+            $prazoTs = strtotime($prazo);
+            $nowTs = time();
+            
+            // se já existe data de envio, considerar Entregue independentemente do prazo
+            if (!empty($dataEnvio)) {
+                $desiredStatus = Documento::STATUS_ENVIADO;
+            } else {
                 if ($prazoTs < $nowTs) {
                     // prazo passou e sem data de envio -> Atrasado
                     $desiredStatus = Documento::STATUS_ATRASADO;
                 } else {
                     $desiredStatus = Documento::STATUS_ENVIADO; // prazo futuro
                 }
+            }
+        } else {
+            // sem prazo cadastrado
+            if ($currentStatus === Documento::STATUS_CONCLUIDO) {
+                $desiredStatus = Documento::STATUS_CONCLUIDO;
             } else {
-                // sem prazo
-                if ($currentStatus === Documento::STATUS_CONCLUIDO) {
-                    $desiredStatus = Documento::STATUS_CONCLUIDO;
-                } else {
-                    $desiredStatus = Documento::STATUS_ENVIADO;
-                }
+                $desiredStatus = Documento::STATUS_ENVIADO;
             }
         }
     }
@@ -250,20 +255,20 @@ if (isset($documento) && $documento) {
     if (isset($documento) && $documento && intval($documento->getIdDocumento()) > 0) {
         if ($desiredStatus !== $currentStatus) {
             Documento::atualizarStatus($documento->getIdDocumento(), $desiredStatus);
-            // Se marcar como Atrasado e não houver arquivo, garantir que dataEnvio seja nula
-            if ($desiredStatus === Documento::STATUS_ATRASADO && empty($documento->getArquivo())) {
+            $documento->setStatus($desiredStatus);
+            // Se foi marcado como Atrasado e não existe arquivo, garantir que dataEnvio fique nula
+            if ($desiredStatus === Documento::STATUS_ATRASADO && empty($arquivo)) {
                 $documento->setDataEnvio(null);
                 $documento->update();
             }
-            $documento->setStatus($desiredStatus);
             // atualizar currentStatus para o restante da exibição
             $currentStatus = $desiredStatus;
         }
     }
 
-    // definir textos/classes para exibição (alinhar com listagemDoc.php)
+    // definir textos/classes para exibição
     if (empty($arquivo)) {
-        if ($desiredStatus === Documento::STATUS_ATRASADO) {
+        if (!empty($prazo) && strtotime($prazo) < time()) {
             $displayStatusText = 'Atrasado';
             $displayStatusClass = 'status-atrasado';
         } else {
@@ -271,8 +276,8 @@ if (isset($documento) && $documento) {
             $displayStatusClass = 'status-nao-enviado';
         }
     } else {
-        $displayStatusText = $statusText[$desiredStatus] ?? 'Desconhecido';
-        $displayStatusClass = $statusClass[$desiredStatus] ?? '';
+        $displayStatusText = $statusText[$currentStatus] ?? 'Desconhecido';
+        $displayStatusClass = $statusClass[$currentStatus] ?? '';
     }
 
     // preparar exibição do prazo
@@ -681,7 +686,7 @@ if (isset($documento) && $documento) {
                                     <span style="color: #999; font-size: 0.85rem; margin-left: 0.5rem;">
                                         <?php 
                                             $data = DateTime::createFromFormat('Y-m-d H:i:s', $comentario->getDataHora());
-                                            echo $data ? $data->format('d/m/Y H:i') : htmlspecialchars($comentario->getDataHora());
+                                            echo $data ? $data->format('d/m/Y') : htmlspecialchars($comentario->getDataHora());
                                         ?>
                                     </span>
                                 </div>

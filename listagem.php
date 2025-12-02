@@ -40,6 +40,7 @@
         </span>
         <div class="user-info" style="display: flex; align-items: center; gap: 18px">
                <a href="perguntas.php" style="color: #007bff; text-decoration: none; font-weight: 600;">Perguntas Frequentes</a>
+               <a href="https://billyorg.com/2025/projeto/grupo3/views/TelaInicial/" style="color: #007bff; text-decoration: none; font-weight: 600;">SuperVisor</a>
                     <a href="logout.php" class="btn-logout" style="
                     background-color: #dc3545;
                     color: white;
@@ -61,8 +62,11 @@
                 <tr>
                     <?php if($_SESSION['tipo'] == 'professor'): ?>
                         <th>Aluno</th>
+                        <th>Empresa</th>
+                    <?php else: ?>
+                        <th>Empresa</th>
+                        <th>Orientador</th>
                     <?php endif; ?>
-                    <th>Empresa</th>
                     <th>Período</th>
                     <th>Status</th>
                     <th>Ações</th>
@@ -70,13 +74,14 @@
             </thead>
             <tbody>
             <?php foreach($estagios as $estagio): ?>
+                <?php $professor = Usuario::acharUsuario($estagio->getIdProfessor()) ?>
                 <?php if($estagio->getSetorEmpresa() == ""): ?>
                     <?php $user = Usuario::acharUsuario($estagio->getIdAluno()); ?>
                     <?php $estagio->setName($user->getNome()) ?>
                     <tr>
-                        <?php if($_SESSION['tipo'] == 'professor'): ?>
-                            <td style = "color:red;"><?= htmlspecialchars($estagio->getName()) ?></td>
+                        <?php if($_SESSION['tipo'] == 'aluno'): ?>
                             <td style = "color:red;"><?= htmlspecialchars($estagio->getEmpresa()) ?></td>
+                            <td style = "color:red;"><?= htmlspecialchars($professor->getNome()) ?></td>
                             <td style = "color:red;">CADASTRO DE ESTÁGIO PENDENTE!!!</td>
                             <td style = "color:red;">CADASTRO DE ESTÁGIO PENDENTE!!!</td>
                             <td><a href="editar.php?idEstagio=<?= $estagio->getIdEstagio() ?>" style="
@@ -92,10 +97,13 @@
                     <tr>
                         <?php if($_SESSION['tipo'] == 'professor'): ?>
                             <td><?= htmlspecialchars($estagio->getName()) ?></td>
+                            <td><?= htmlspecialchars($estagio->getEmpresa()) ?></td>
+                        <?php else:?>
+                            <td><?= htmlspecialchars($estagio->getEmpresa()) ?></td>
+                            <td><?= htmlspecialchars($estagio->getProfessor()) ?></td>
                         <?php endif; ?>
                         <?php $DI = date('d/m/Y', strtotime($estagio->getDataInicio())); ?>
                         <?php $DF = date('d/m/Y', strtotime($estagio->getDataFim())); ?>
-                        <td><?= htmlspecialchars($estagio->getEmpresa()) ?></td>
                         <td><?= str_replace('-', '/', htmlspecialchars($DI)) ?> - <?= str_replace('-', '/', htmlspecialchars($DF)) ?></td>
                         <td>
                             <?php
